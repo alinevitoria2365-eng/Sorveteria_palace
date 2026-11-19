@@ -1,3 +1,4 @@
+import { localStore } from './localStore';
 import type {
   Atendente,
   Cliente,
@@ -8,6 +9,13 @@ import type {
   Produto,
   User,
 } from './types';
+
+function isStaticHost(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    (window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:')
+  );
+}
 
 const TOKEN_KEY = 'sorveteria_pdv_token';
 
@@ -55,59 +63,81 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
-  login: (usuario: string, senha: string) =>
-    request<{ token: string; user: User }>('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ usuario, senha }),
-    }),
-  me: () => request<{ user: User }>('/api/auth/me'),
+  login: async (usuario: string, senha: string) =>
+    isStaticHost()
+      ? localStore.login(usuario, senha)
+      : request<{ token: string; user: User }>('/api/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ usuario, senha }),
+        }),
+  me: async () =>
+    isStaticHost() ? localStore.me(getStoredToken()) : request<{ user: User }>('/api/auth/me'),
 
-  getClientes: () => request<Cliente[]>('/api/clientes'),
-  createCliente: (nome: string, telefone = '') =>
-    request<Cliente>('/api/clientes', {
-      method: 'POST',
-      body: JSON.stringify({ nome, telefone }),
-    }),
+  getClientes: async () =>
+    isStaticHost() ? localStore.getClientes() : request<Cliente[]>('/api/clientes'),
+  createCliente: async (nome: string, telefone = '') =>
+    isStaticHost()
+      ? localStore.createCliente(nome, telefone)
+      : request<Cliente>('/api/clientes', {
+          method: 'POST',
+          body: JSON.stringify({ nome, telefone }),
+        }),
 
-  getAtendentes: () => request<Atendente[]>('/api/atendentes'),
-  createAtendente: (nome: string) =>
-    request<Atendente>('/api/atendentes', {
-      method: 'POST',
-      body: JSON.stringify({ nome }),
-    }),
+  getAtendentes: async () =>
+    isStaticHost() ? localStore.getAtendentes() : request<Atendente[]>('/api/atendentes'),
+  createAtendente: async (nome: string) =>
+    isStaticHost()
+      ? localStore.createAtendente(nome)
+      : request<Atendente>('/api/atendentes', {
+          method: 'POST',
+          body: JSON.stringify({ nome }),
+        }),
 
-  getProdutos: (q = '', includeInactive = false) => {
+  getProdutos: async (q = '', includeInactive = false) => {
+    if (isStaticHost()) return localStore.getProdutos(q, includeInactive);
     const params = new URLSearchParams();
     if (q) params.set('q', q);
     if (includeInactive) params.set('includeInactive', '1');
     const qs = params.toString();
     return request<Produto[]>(`/api/produtos${qs ? `?${qs}` : ''}`);
   },
-  createProduto: (data: { codigo: string; nome: string; preco: number }) =>
-    request<Produto>('/api/produtos', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-  updateProduto: (id: number, data: Partial<{ codigo: string; nome: string; preco: number; ativo: boolean }>) =>
-    request<Produto>(`/api/produtos/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+  createProduto: async (data: { codigo: string; nome: string; preco: number }) =>
+    isStaticHost()
+      ? localStore.createProduto(data)
+      : request<Produto>('/api/produtos', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+  updateProduto: async (
+    id: number,
+    data: Partial<{ codigo: string; nome: string; preco: number; ativo: boolean }>
+  ) =>
+    isStaticHost()
+      ? localStore.updateProduto(id, data)
+      : request<Produto>(`/api/produtos/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        }),
 
-  getPedidos: (status?: string) =>
-    request<Pedido[]>(`/api/pedidos${status ? `?status=${encodeURIComponent(status)}` : ''}`),
-  getPedido: (id: number) => request<Pedido>(`/api/pedidos/${id}`),
-  createPedido: (data: {
+  getPedidos: async (status?: string) =>
+    isStaticHost()
+      ? localStore.getPedidos(status)
+      : request<Pedido[]>(`/api/pedidos${status ? `?status=${encodeURIComponent(status)}` : ''}`),
+  getPedido: async (id: number) =>
+    isStaticHost() ? localStore.getPedido(id) : request<Pedido>(`/api/pedidos/${id}`),
+  createPedido: async (data: {
     clienteId: number;
     atendenteId: number;
     comentario: string;
     status?: 'PENDENTE' | 'EM_ANDAMENTO';
   }) =>
-    request<Pedido>('/api/pedidos', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-  updatePedido: (
+    isStaticHost()
+      ? localStore.createPedido(data)
+      : request<Pedido>('/api/pedidos', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+  updatePedido: async (
     id: number,
     data: Partial<{
       clienteId: number;
@@ -118,44 +148,57 @@ export const api = {
       descontos: number;
     }>
   ) =>
-    request<Pedido>(`/api/pedidos/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+    isStaticHost()
+      ? localStore.updatePedido(id, data)
+      : request<Pedido>(`/api/pedidos/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        }),
 
-  addItem: (pedidoId: number, produtoId: number, quantidade = 1, precoUnitario?: number) =>
-    request<Pedido>(`/api/pedidos/${pedidoId}/itens`, {
-      method: 'POST',
-      body: JSON.stringify({
-        produtoId,
-        quantidade,
-        ...(precoUnitario !== undefined ? { precoUnitario } : {}),
-      }),
-    }),
-  updateItem: (pedidoId: number, itemId: number, quantidade: number, precoUnitario?: number) =>
-    request<Pedido>(`/api/pedidos/${pedidoId}/itens/${itemId}`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        quantidade,
-        ...(precoUnitario !== undefined ? { precoUnitario } : {}),
-      }),
-    }),
-  removeItem: (pedidoId: number, itemId: number) =>
-    request<Pedido>(`/api/pedidos/${pedidoId}/itens/${itemId}`, {
-      method: 'DELETE',
-    }),
+  addItem: async (pedidoId: number, produtoId: number, quantidade = 1, precoUnitario?: number) =>
+    isStaticHost()
+      ? localStore.addItem(pedidoId, produtoId, quantidade, precoUnitario)
+      : request<Pedido>(`/api/pedidos/${pedidoId}/itens`, {
+          method: 'POST',
+          body: JSON.stringify({
+            produtoId,
+            quantidade,
+            ...(precoUnitario !== undefined ? { precoUnitario } : {}),
+          }),
+        }),
+  updateItem: async (pedidoId: number, itemId: number, quantidade: number, precoUnitario?: number) =>
+    isStaticHost()
+      ? localStore.updateItem(pedidoId, itemId, quantidade, precoUnitario)
+      : request<Pedido>(`/api/pedidos/${pedidoId}/itens/${itemId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            quantidade,
+            ...(precoUnitario !== undefined ? { precoUnitario } : {}),
+          }),
+        }),
+  removeItem: async (pedidoId: number, itemId: number) =>
+    isStaticHost()
+      ? localStore.removeItem(pedidoId, itemId)
+      : request<Pedido>(`/api/pedidos/${pedidoId}/itens/${itemId}`, {
+          method: 'DELETE',
+        }),
 
-  fecharPedido: (pedidoId: number, formaPagamento: FormaPagamento, valorRecebido?: number) =>
-    request<Pedido>(`/api/pedidos/${pedidoId}/fechar`, {
-      method: 'POST',
-      body: JSON.stringify({ formaPagamento, valorRecebido }),
-    }),
-  cancelarPedido: (pedidoId: number) =>
-    request<Pedido>(`/api/pedidos/${pedidoId}/cancelar`, {
-      method: 'POST',
-    }),
+  fecharPedido: async (pedidoId: number, formaPagamento: FormaPagamento, valorRecebido?: number) =>
+    isStaticHost()
+      ? localStore.fecharPedido(pedidoId, formaPagamento, valorRecebido)
+      : request<Pedido>(`/api/pedidos/${pedidoId}/fechar`, {
+          method: 'POST',
+          body: JSON.stringify({ formaPagamento, valorRecebido }),
+        }),
+  cancelarPedido: async (pedidoId: number) =>
+    isStaticHost()
+      ? localStore.cancelarPedido(pedidoId)
+      : request<Pedido>(`/api/pedidos/${pedidoId}/cancelar`, {
+          method: 'POST',
+        }),
 
-  getHistoricoResumo: () => request<HistoricoResumo>('/api/historico/resumo'),
+  getHistoricoResumo: async () =>
+    isStaticHost() ? localStore.getHistoricoResumo() : request<HistoricoResumo>('/api/historico/resumo'),
 };
 
 export function formatCurrency(value: number | null | undefined): string {
