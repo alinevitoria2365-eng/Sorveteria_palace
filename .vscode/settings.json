@@ -1,0 +1,8 @@
+{
+  "liveServer.settings.root": "/dist",
+  "liveServer.settings.proxy": {
+    "enable": true,
+    "baseUri": "/api",
+    "proxyUri": "http://localhost:3001/api"
+  }
+}
