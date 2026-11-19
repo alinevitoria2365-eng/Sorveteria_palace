@@ -1,0 +1,7 @@
+node_modules/
+dist/
+sorveteria.db
+sorveteria.db-shm
+sorveteria.db-wal
+.DS_Store
+*.log
