@@ -265,6 +265,10 @@ function seedInitialData() {
     ['53', 'Caixa 5 litros - tradicional', 100.00],
     ['-', 'Caixa 5 litros - trufado/recheado', 120.00],
     ['-', 'Caixa 10 litros', 140.00],
+    ['50', 'Milk Shake pequeno', 13.00],
+    ['51', 'Milk Shake Médio', 16.00],
+    ['52', 'Milk Shake Grande', 22.00],
+    ['-', 'Milk shake - taça', 16.00],
   ];
 
   for (const [cod, nom, prc] of novosItensFixos) {

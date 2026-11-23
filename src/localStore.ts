@@ -10,7 +10,7 @@ import type {
   User,
 } from './types';
 
-const STORE_KEY = 'sorveteria_pdv_static_store_v2';
+const STORE_KEY = 'sorveteria_pdv_static_store_v3';
 
 interface StoreState {
   nextIds: {
@@ -51,18 +51,21 @@ function createInitialState(): StoreState {
     { id: 11, codigo: '31', nome: 'Picolé Pistache/Brigadeiro', preco: 5.0, ativo: 1 },
     { id: 12, codigo: '32', nome: 'Picolé Skimo/Tentação', preco: 4.0, ativo: 1 },
     { id: 13, codigo: '33', nome: 'Picolé', preco: 2.0, ativo: 1 },
-    { id: 14, codigo: '50', nome: 'Milkshake 400ml', preco: 18.5, ativo: 1 },
-    { id: 15, codigo: '53', nome: 'Caixa 5 litros - tradicional', preco: 100.0, ativo: 1 },
-    { id: 16, codigo: '54', nome: 'Mini cobertura', preco: 15.0, ativo: 1 },
-    { id: 17, codigo: '60', nome: 'Casquinha 1 bola', preco: 11.5, ativo: 1 },
-    { id: 18, codigo: '61', nome: 'Casquinha pacote', preco: 5.0, ativo: 1 },
-    { id: 19, codigo: '62', nome: 'Cestinha gourmet', preco: 25.0, ativo: 1 },
-    { id: 20, codigo: '90', nome: 'Água c/ gás', preco: 4.0, ativo: 1 },
-    { id: 21, codigo: '91', nome: 'Água Mineral 500ml', preco: 3.5, ativo: 1 },
-    { id: 22, codigo: '92', nome: 'Petit Gateau com Sorvete', preco: 24.0, ativo: 1 },
-    { id: 23, codigo: '300', nome: 'Caldo', preco: 14.0, ativo: 1 },
-    { id: 24, codigo: '-', nome: 'Caixa 5 litros - trufado/recheado', preco: 120.0, ativo: 1 },
-    { id: 25, codigo: '-', nome: 'Caixa 10 litros', preco: 140.0, ativo: 1 },
+    { id: 14, codigo: '50', nome: 'Milk Shake pequeno', preco: 13.0, ativo: 1 },
+    { id: 15, codigo: '51', nome: 'Milk Shake Médio', preco: 16.0, ativo: 1 },
+    { id: 16, codigo: '52', nome: 'Milk Shake Grande', preco: 22.0, ativo: 1 },
+    { id: 17, codigo: '53', nome: 'Caixa 5 litros - tradicional', preco: 100.0, ativo: 1 },
+    { id: 18, codigo: '54', nome: 'Mini cobertura', preco: 15.0, ativo: 1 },
+    { id: 19, codigo: '60', nome: 'Casquinha 1 bola', preco: 11.5, ativo: 1 },
+    { id: 20, codigo: '61', nome: 'Casquinha pacote', preco: 5.0, ativo: 1 },
+    { id: 21, codigo: '62', nome: 'Cestinha gourmet', preco: 25.0, ativo: 1 },
+    { id: 22, codigo: '90', nome: 'Água c/ gás', preco: 4.0, ativo: 1 },
+    { id: 23, codigo: '91', nome: 'Água Mineral 500ml', preco: 3.5, ativo: 1 },
+    { id: 24, codigo: '92', nome: 'Petit Gateau com Sorvete', preco: 24.0, ativo: 1 },
+    { id: 25, codigo: '300', nome: 'Caldo', preco: 14.0, ativo: 1 },
+    { id: 26, codigo: '-', nome: 'Caixa 5 litros - trufado/recheado', preco: 120.0, ativo: 1 },
+    { id: 27, codigo: '-', nome: 'Caixa 10 litros', preco: 140.0, ativo: 1 },
+    { id: 28, codigo: '-', nome: 'Milk shake - taça', preco: 16.0, ativo: 1 },
   ];
 
   return {
