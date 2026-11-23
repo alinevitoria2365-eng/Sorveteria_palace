@@ -119,13 +119,15 @@ export const CadastrosScreen: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-extrabold text-slate-900">CADASTROS</h1>
-        <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
+        <h1 className="text-2xl sm:text-3xl font-black text-[#003377]">CADASTROS</h1>
+        <div className="flex items-center gap-1.5 bg-white/95 p-1.5 rounded-full border-2 border-[#8ec8ff] shadow-xs">
           <button
             type="button"
             onClick={() => setTab('produtos')}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
-              tab === 'produtos' ? 'bg-sky-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer ${
+              tab === 'produtos'
+                ? 'bg-gradient-to-r from-[#004ca8] to-[#0066cc] text-white shadow-xs'
+                : 'text-[#0c4a96] hover:bg-sky-50'
             }`}
           >
             <Package className="w-4 h-4" />
@@ -134,8 +136,10 @@ export const CadastrosScreen: React.FC = () => {
           <button
             type="button"
             onClick={() => setTab('clientes')}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
-              tab === 'clientes' ? 'bg-sky-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer ${
+              tab === 'clientes'
+                ? 'bg-gradient-to-r from-[#004ca8] to-[#0066cc] text-white shadow-xs'
+                : 'text-[#0c4a96] hover:bg-sky-50'
             }`}
           >
             <Users className="w-4 h-4" />
@@ -144,8 +148,10 @@ export const CadastrosScreen: React.FC = () => {
           <button
             type="button"
             onClick={() => setTab('atendentes')}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
-              tab === 'atendentes' ? 'bg-sky-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer ${
+              tab === 'atendentes'
+                ? 'bg-gradient-to-r from-[#004ca8] to-[#0066cc] text-white shadow-xs'
+                : 'text-[#0c4a96] hover:bg-sky-50'
             }`}
           >
             <UserCheck className="w-4 h-4" />
@@ -172,9 +178,9 @@ export const CadastrosScreen: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <form
             onSubmit={handleCreateProduto}
-            className="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4"
+            className="lg:col-span-4 bg-white/95 rounded-3xl border-2 border-[#8ec8ff] p-6 shadow-[0_12px_32px_-12px_rgba(0,82,180,0.18)] space-y-4"
           >
-            <h2 className="text-sm font-extrabold uppercase text-slate-700">Novo Produto</h2>
+            <h2 className="text-sm font-black uppercase text-[#003377]">Novo Produto</h2>
             <div>
               <label className="block text-xs font-bold uppercase text-slate-500 mb-1">
                 Código (atalho rápido)
@@ -214,14 +220,14 @@ export const CadastrosScreen: React.FC = () => {
             </div>
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3 rounded-full bg-gradient-to-r from-[#004ca8] via-[#005ec9] to-[#0070e0] hover:from-[#003d8a] hover:to-[#005ec9] text-white font-extrabold text-sm inline-flex items-center justify-center gap-2 shadow-md shadow-blue-800/20 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               Cadastrar Produto
             </button>
           </form>
 
-          <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="lg:col-span-8 bg-white/95 rounded-3xl border-2 border-[#8ec8ff] shadow-[0_12px_32px_-12px_rgba(0,82,180,0.18)] overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-xs font-bold uppercase text-slate-500">
@@ -291,14 +297,14 @@ export const CadastrosScreen: React.FC = () => {
             </div>
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3 rounded-full bg-gradient-to-r from-[#004ca8] via-[#005ec9] to-[#0070e0] hover:from-[#003d8a] hover:to-[#005ec9] text-white font-extrabold text-sm inline-flex items-center justify-center gap-2 shadow-md shadow-blue-800/20 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               Cadastrar Cliente
             </button>
           </form>
 
-          <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="lg:col-span-8 bg-white/95 rounded-3xl border-2 border-[#8ec8ff] shadow-[0_12px_32px_-12px_rgba(0,82,180,0.18)] overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-xs font-bold uppercase text-slate-500">
@@ -340,14 +346,14 @@ export const CadastrosScreen: React.FC = () => {
             </div>
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3 rounded-full bg-gradient-to-r from-[#004ca8] via-[#005ec9] to-[#0070e0] hover:from-[#003d8a] hover:to-[#005ec9] text-white font-extrabold text-sm inline-flex items-center justify-center gap-2 shadow-md shadow-blue-800/20 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               Cadastrar Atendente
             </button>
           </form>
 
-          <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="lg:col-span-8 bg-white/95 rounded-3xl border-2 border-[#8ec8ff] shadow-[0_12px_32px_-12px_rgba(0,82,180,0.18)] overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-xs font-bold uppercase text-slate-500">
