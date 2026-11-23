@@ -42,9 +42,10 @@ export function initDatabase() {
       ativo INTEGER NOT NULL DEFAULT 1
     );
 
+    DROP INDEX IF EXISTS idx_produtos_codigo_ativo;
     CREATE UNIQUE INDEX IF NOT EXISTS idx_produtos_codigo_ativo
       ON produtos (codigo)
-      WHERE ativo = 1;
+      WHERE ativo = 1 AND codigo != '-';
 
     CREATE TABLE IF NOT EXISTS pedidos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -238,6 +239,53 @@ function seedInitialData() {
     db.prepare(
       "INSERT INTO produtos (codigo, nome, preco, ativo) VALUES ('31', 'Picolé Pistache/Brigadeiro', 5.00, 1)"
     ).run();
+  }
+
+  // Mover Sundae Especial de 25 para 26 se necessário para liberar código 25 para Colegial
+  const sundae25 = db.prepare("SELECT id, nome FROM produtos WHERE codigo = '25' AND ativo = 1").get();
+  if (sundae25 && sundae25.nome === 'Sundae Especial') {
+    const has26 = db.prepare("SELECT id FROM produtos WHERE codigo = '26' AND ativo = 1").get();
+    if (!has26) {
+      db.prepare("UPDATE produtos SET codigo = '26' WHERE id = ?").run(sundae25.id);
+    } else {
+      db.prepare("UPDATE produtos SET ativo = 0 WHERE id = ?").run(sundae25.id);
+    }
+  }
+
+  // Novos itens fixos
+  const novosItensFixos = [
+    ['62', 'Cestinha gourmet', 25.00],
+    ['61', 'Casquinha pacote', 5.00],
+    ['15', 'Capuccino', 18.00],
+    ['25', 'Colegial', 18.00],
+    ['18', 'Cascão pacote', 9.00],
+    ['23', 'Cestinha', 5.00],
+    ['14', 'Café gelado', 15.00],
+    ['54', 'Mini cobertura', 15.00],
+    ['53', 'Caixa 5 litros - tradicional', 100.00],
+    ['-', 'Caixa 5 litros - trufado/recheado', 120.00],
+    ['-', 'Caixa 10 litros', 140.00],
+  ];
+
+  for (const [cod, nom, prc] of novosItensFixos) {
+    const found =
+      cod === '-'
+        ? db.prepare('SELECT id FROM produtos WHERE nome = ? AND ativo = 1').get(nom)
+        : db.prepare('SELECT id FROM produtos WHERE (codigo = ? OR nome = ?) AND ativo = 1').get(cod, nom);
+    if (found) {
+      db.prepare('UPDATE produtos SET codigo = ?, nome = ?, preco = ?, ativo = 1 WHERE id = ?').run(
+        cod,
+        nom,
+        prc,
+        found.id
+      );
+    } else {
+      db.prepare('INSERT INTO produtos (codigo, nome, preco, ativo) VALUES (?, ?, ?, 1)').run(
+        cod,
+        nom,
+        prc
+      );
+    }
   }
 }
 

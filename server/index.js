@@ -98,9 +98,10 @@ app.get('/api/produtos', requireAuth, (req, res) => {
     return res.json(rows);
   }
 
+  const orderClause = "CASE WHEN codigo = '-' THEN 1 ELSE 0 END, CAST(codigo AS INTEGER) ASC, nome ASC";
   const rows = includeInactive
-    ? db.prepare('SELECT id, codigo, nome, preco, ativo FROM produtos ORDER BY CAST(codigo AS INTEGER) ASC, nome ASC').all()
-    : db.prepare('SELECT id, codigo, nome, preco, ativo FROM produtos WHERE ativo = 1 ORDER BY CAST(codigo AS INTEGER) ASC, nome ASC').all();
+    ? db.prepare(`SELECT id, codigo, nome, preco, ativo FROM produtos ORDER BY ${orderClause}`).all()
+    : db.prepare(`SELECT id, codigo, nome, preco, ativo FROM produtos WHERE ativo = 1 ORDER BY ${orderClause}`).all();
   res.json(rows);
 });
 
@@ -115,9 +116,11 @@ app.post('/api/produtos', requireAuth, (req, res) => {
     return res.status(400).json({ error: 'Preço inválido.' });
   }
 
-  const existing = db.prepare('SELECT id FROM produtos WHERE codigo = ? AND ativo = 1').get(codigo);
-  if (existing) {
-    return res.status(409).json({ error: `Já existe um produto ativo com o código ${codigo}.` });
+  if (codigo !== '-') {
+    const existing = db.prepare('SELECT id FROM produtos WHERE codigo = ? AND ativo = 1').get(codigo);
+    if (existing) {
+      return res.status(409).json({ error: `Já existe um produto ativo com o código ${codigo}.` });
+    }
   }
 
   const result = db
@@ -140,7 +143,7 @@ app.put('/api/produtos/:id', requireAuth, (req, res) => {
   if (!codigo || !nome) return res.status(400).json({ error: 'Código e nome são obrigatórios.' });
   if (!Number.isFinite(preco) || preco < 0) return res.status(400).json({ error: 'Preço inválido.' });
 
-  if (ativo === 1) {
+  if (ativo === 1 && codigo !== '-') {
     const conflict = db
       .prepare('SELECT id FROM produtos WHERE codigo = ? AND ativo = 1 AND id != ?')
       .get(codigo, id);

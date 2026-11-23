@@ -10,7 +10,7 @@ import type {
   User,
 } from './types';
 
-const STORE_KEY = 'sorveteria_pdv_static_store_v1';
+const STORE_KEY = 'sorveteria_pdv_static_store_v2';
 
 interface StoreState {
   nextIds: {
@@ -40,18 +40,29 @@ function createInitialState(): StoreState {
   const produtos: Produto[] = [
     { id: 1, codigo: '01', nome: 'Self service', preco: 0, ativo: 1 },
     { id: 2, codigo: '12', nome: 'Refrigerante Lata', preco: 6.5, ativo: 1 },
-    { id: 3, codigo: '16', nome: 'Cascão 1 bola', preco: 9.0, ativo: 1 },
-    { id: 4, codigo: '17', nome: 'Cascão 2 bolas', preco: 14.0, ativo: 1 },
-    { id: 5, codigo: '25', nome: 'Sundae Especial', preco: 17.0, ativo: 1 },
-    { id: 6, codigo: '31', nome: 'Picolé Pistache/Brigadeiro', preco: 5.0, ativo: 1 },
-    { id: 7, codigo: '32', nome: 'Picolé Skimo/Tentação', preco: 4.0, ativo: 1 },
-    { id: 8, codigo: '33', nome: 'Picolé', preco: 2.0, ativo: 1 },
-    { id: 9, codigo: '50', nome: 'Milkshake 400ml', preco: 18.5, ativo: 1 },
-    { id: 10, codigo: '60', nome: 'Casquinha 1 bola', preco: 11.5, ativo: 1 },
-    { id: 11, codigo: '90', nome: 'Água c/ gás', preco: 4.0, ativo: 1 },
-    { id: 12, codigo: '91', nome: 'Água Mineral 500ml', preco: 3.5, ativo: 1 },
-    { id: 13, codigo: '92', nome: 'Petit Gateau com Sorvete', preco: 24.0, ativo: 1 },
-    { id: 14, codigo: '300', nome: 'Caldo', preco: 14.0, ativo: 1 },
+    { id: 3, codigo: '14', nome: 'Café gelado', preco: 15.0, ativo: 1 },
+    { id: 4, codigo: '15', nome: 'Capuccino', preco: 18.0, ativo: 1 },
+    { id: 5, codigo: '16', nome: 'Cascão 1 bola', preco: 9.0, ativo: 1 },
+    { id: 6, codigo: '17', nome: 'Cascão 2 bolas', preco: 14.0, ativo: 1 },
+    { id: 7, codigo: '18', nome: 'Cascão pacote', preco: 9.0, ativo: 1 },
+    { id: 8, codigo: '23', nome: 'Cestinha', preco: 5.0, ativo: 1 },
+    { id: 9, codigo: '25', nome: 'Colegial', preco: 18.0, ativo: 1 },
+    { id: 10, codigo: '26', nome: 'Sundae Especial', preco: 17.0, ativo: 1 },
+    { id: 11, codigo: '31', nome: 'Picolé Pistache/Brigadeiro', preco: 5.0, ativo: 1 },
+    { id: 12, codigo: '32', nome: 'Picolé Skimo/Tentação', preco: 4.0, ativo: 1 },
+    { id: 13, codigo: '33', nome: 'Picolé', preco: 2.0, ativo: 1 },
+    { id: 14, codigo: '50', nome: 'Milkshake 400ml', preco: 18.5, ativo: 1 },
+    { id: 15, codigo: '53', nome: 'Caixa 5 litros - tradicional', preco: 100.0, ativo: 1 },
+    { id: 16, codigo: '54', nome: 'Mini cobertura', preco: 15.0, ativo: 1 },
+    { id: 17, codigo: '60', nome: 'Casquinha 1 bola', preco: 11.5, ativo: 1 },
+    { id: 18, codigo: '61', nome: 'Casquinha pacote', preco: 5.0, ativo: 1 },
+    { id: 19, codigo: '62', nome: 'Cestinha gourmet', preco: 25.0, ativo: 1 },
+    { id: 20, codigo: '90', nome: 'Água c/ gás', preco: 4.0, ativo: 1 },
+    { id: 21, codigo: '91', nome: 'Água Mineral 500ml', preco: 3.5, ativo: 1 },
+    { id: 22, codigo: '92', nome: 'Petit Gateau com Sorvete', preco: 24.0, ativo: 1 },
+    { id: 23, codigo: '300', nome: 'Caldo', preco: 14.0, ativo: 1 },
+    { id: 24, codigo: '-', nome: 'Caixa 5 litros - trufado/recheado', preco: 120.0, ativo: 1 },
+    { id: 25, codigo: '-', nome: 'Caixa 10 litros', preco: 140.0, ativo: 1 },
   ];
 
   return {
@@ -178,12 +189,19 @@ export const localStore = {
         (p) => p.codigo.toLowerCase().includes(term) || p.nome.toLowerCase().includes(term)
       );
     }
-    return [...list].sort((a, b) => Number(a.codigo) - Number(b.codigo) || a.nome.localeCompare(b.nome));
+    return [...list].sort((a, b) => {
+      if (a.codigo === '-' && b.codigo !== '-') return 1;
+      if (a.codigo !== '-' && b.codigo === '-') return -1;
+      const numA = Number(a.codigo);
+      const numB = Number(b.codigo);
+      if (Number.isFinite(numA) && Number.isFinite(numB) && numA !== numB) return numA - numB;
+      return a.nome.localeCompare(b.nome);
+    });
   },
 
   createProduto(data: { codigo: string; nome: string; preco: number }): Produto {
     const state = loadState();
-    if (state.produtos.some((p) => p.ativo === 1 && p.codigo === data.codigo)) {
+    if (data.codigo !== '-' && state.produtos.some((p) => p.ativo === 1 && p.codigo === data.codigo)) {
       throw new Error(`Já existe um produto ativo com o código ${data.codigo}.`);
     }
     const created: Produto = {
@@ -207,7 +225,11 @@ export const localStore = {
     if (!prod) throw new Error('Produto não encontrado.');
     const nextCodigo = data.codigo ?? prod.codigo;
     const nextAtivo = data.ativo !== undefined ? (data.ativo ? 1 : 0) : prod.ativo;
-    if (nextAtivo === 1 && state.produtos.some((p) => p.ativo === 1 && p.codigo === nextCodigo && p.id !== id)) {
+    if (
+      nextAtivo === 1 &&
+      nextCodigo !== '-' &&
+      state.produtos.some((p) => p.ativo === 1 && p.codigo === nextCodigo && p.id !== id)
+    ) {
       throw new Error(`Já existe outro produto ativo com o código ${nextCodigo}.`);
     }
     prod.codigo = nextCodigo;
