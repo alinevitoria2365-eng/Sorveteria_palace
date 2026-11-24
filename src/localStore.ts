@@ -10,7 +10,7 @@ import type {
   User,
 } from './types';
 
-const STORE_KEY = 'sorveteria_pdv_static_store_v3';
+const STORE_KEY = 'sorveteria_pdv_static_store_v4';
 
 interface StoreState {
   nextIds: {
@@ -63,9 +63,13 @@ function createInitialState(): StoreState {
     { id: 23, codigo: '91', nome: 'Água Mineral 500ml', preco: 3.5, ativo: 1 },
     { id: 24, codigo: '92', nome: 'Petit Gateau com Sorvete', preco: 24.0, ativo: 1 },
     { id: 25, codigo: '300', nome: 'Caldo', preco: 14.0, ativo: 1 },
-    { id: 26, codigo: '-', nome: 'Caixa 5 litros - trufado/recheado', preco: 120.0, ativo: 1 },
-    { id: 27, codigo: '-', nome: 'Caixa 10 litros', preco: 140.0, ativo: 1 },
-    { id: 28, codigo: '-', nome: 'Milk shake - taça', preco: 16.0, ativo: 1 },
+    { id: 26, codigo: '100', nome: 'Adicional cobertura 1', preco: 1.0, ativo: 1 },
+    { id: 27, codigo: '200', nome: 'Adicional cobertura 2', preco: 2.0, ativo: 1 },
+    { id: 28, codigo: '-', nome: 'Caixa 5 litros - trufado/recheado', preco: 120.0, ativo: 1 },
+    { id: 29, codigo: '-', nome: 'Caixa 10 litros', preco: 140.0, ativo: 1 },
+    { id: 30, codigo: '-', nome: 'Milk shake - taça', preco: 16.0, ativo: 1 },
+    { id: 31, codigo: '-', nome: 'Adicional cereja / paçoca', preco: 1.0, ativo: 1 },
+    { id: 32, codigo: '-', nome: 'Adicional confete', preco: 3.0, ativo: 1 },
   ];
 
   return {

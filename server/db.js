@@ -269,6 +269,10 @@ function seedInitialData() {
     ['51', 'Milk Shake Médio', 16.00],
     ['52', 'Milk Shake Grande', 22.00],
     ['-', 'Milk shake - taça', 16.00],
+    ['-', 'Adicional cereja / paçoca', 1.00],
+    ['-', 'Adicional confete', 3.00],
+    ['100', 'Adicional cobertura 1', 1.00],
+    ['200', 'Adicional cobertura 2', 2.00],
   ];
 
   for (const [cod, nom, prc] of novosItensFixos) {
