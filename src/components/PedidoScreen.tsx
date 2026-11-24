@@ -244,6 +244,76 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
     }
   }
 
+  function handlePrintComanda() {
+    if (!pedido) return;
+    const listaItens = pedido.itens || [];
+    if (listaItens.length === 0) {
+      setError('Adicione pelo menos um item antes de imprimir.');
+      return;
+    }
+
+    const win = window.open('', '_blank', 'width=360,height=600');
+    if (!win) {
+      setError('Permita pop-ups no navegador para imprimir a comanda.');
+      return;
+    }
+
+    const rowsHtml = listaItens
+      .map(
+        (item) => `
+        <tr>
+          <td style="padding:4px 0;vertical-align:top;">
+            <strong>${item.quantidade}x</strong> ${item.nomeProduto}
+            <div style="font-size:11px;color:#555;">Cód: ${item.codigoProduto} • Unit: ${formatCurrency(item.precoUnitario)}</div>
+          </td>
+          <td style="padding:4px 0;text-align:right;vertical-align:top;white-space:nowrap;font-weight:bold;">
+            ${formatCurrency(item.subtotal)}
+          </td>
+        </tr>`
+      )
+      .join('');
+
+    win.document.write(`
+      <!doctype html>
+      <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8" />
+          <title>Comanda Pedido #${pedido.id}</title>
+          <style>
+            body { font-family: monospace, sans-serif; width: 290px; margin: 12px auto; color: #111; font-size: 13px; }
+            h1 { font-size: 16px; text-align: center; margin: 0 0 4px; }
+            .sub { text-align: center; font-size: 11px; color: #555; margin-bottom: 10px; }
+            .line { border-top: 1px dashed #333; margin: 8px 0; }
+            table { width: 100%; border-collapse: collapse; }
+            .total { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 6px; }
+          </style>
+        </head>
+        <body>
+          <h1>SORVETERIA PALÁCIO</h1>
+          <div class="sub">Pedido #${pedido.id} • ${formatDateTime(pedido.dataHoraCriacao)}</div>
+          <div class="line"></div>
+          <div><strong>Cliente:</strong> ${pedido.clienteNome}</div>
+          <div><strong>Atendente:</strong> ${pedido.atendenteNome}</div>
+          ${pedido.comentario ? `<div><strong>Obs:</strong> ${pedido.comentario}</div>` : ''}
+          <div class="line"></div>
+          <table>${rowsHtml}</table>
+          <div class="line"></div>
+          <div class="total">
+            <span>TOTAL:</span>
+            <span>${formatCurrency(pedido.total)}</span>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 300);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    win.document.close();
+  }
+
   if (loading) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-12 text-center text-slate-500">
@@ -363,14 +433,38 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
             <h2 className="text-sm font-black uppercase tracking-wider text-white">
               ADICIONAR
             </h2>
-            <button
-              type="button"
-              onClick={() => setShowQtdConfig((v) => !v)}
-              title="Definir quantidade padrão"
-              className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition cursor-pointer"
-            >
-              <Settings className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handlePrintComanda}
+                title="Imprimir itens do pedido"
+                className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition cursor-pointer"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="w-4 h-4"
+                  stroke="currentColor"
+                  strokeWidth="1.9"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  {/* Papel saindo por cima com ✔ dentro */}
+                  <path d="M7 10V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v6" />
+                  <path d="M10 6.8l1.4 1.4 2.8-2.8" />
+                  {/* Quadrado (base da impressora) */}
+                  <rect x="4" y="10" width="16" height="10" rx="2" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowQtdConfig((v) => !v)}
+                title="Definir quantidade padrão"
+                className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition cursor-pointer"
+              >
+                <Settings className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           <div className="p-4 space-y-4">
