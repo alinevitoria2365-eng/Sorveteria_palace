@@ -270,7 +270,7 @@ function seedInitialData() {
     ['15', 'Capuccino', 18.00],
     ['25', 'Colegial', 18.00],
     ['18', 'Cascão pacote', 9.00],
-    ['23', 'Cestinha', 5.00],
+    ['23', 'Cestinha Recheada 1 bola', 5.00],
     ['14', 'Café gelado', 15.00],
     ['54', 'Mini cobertura', 15.00],
     ['53', 'Caixa 5 litros - tradicional', 100.00],

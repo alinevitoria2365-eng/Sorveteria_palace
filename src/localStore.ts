@@ -10,7 +10,7 @@ import type {
   User,
 } from './types';
 
-const STORE_KEY = 'sorveteria_pdv_static_store_v5';
+const STORE_KEY = 'sorveteria_pdv_static_store_v6';
 
 interface StoreState {
   nextIds: {
@@ -41,12 +41,12 @@ function createInitialState(): StoreState {
     { id: 1, codigo: '01', nome: 'Self service', preco: 0, ativo: 1 },
     { id: 2, codigo: '12', nome: 'Banana split', preco: 25.0, ativo: 1 },
     { id: 3, codigo: '13', nome: 'Refrigerante Lata', preco: 6.5, ativo: 1 },
-    { id: 4, codigo: '14', nome: 'Café gelado', preco: 15.0, ativo: 1 },
+    { id: 34, codigo: '14', nome: 'Café gelado', preco: 15.0, ativo: 1 },
     { id: 4, codigo: '15', nome: 'Capuccino', preco: 18.0, ativo: 1 },
     { id: 5, codigo: '16', nome: 'Cascão 1 bola', preco: 9.0, ativo: 1 },
     { id: 6, codigo: '17', nome: 'Cascão 2 bolas', preco: 14.0, ativo: 1 },
     { id: 7, codigo: '18', nome: 'Cascão pacote', preco: 9.0, ativo: 1 },
-    { id: 8, codigo: '23', nome: 'Cestinha', preco: 5.0, ativo: 1 },
+    { id: 8, codigo: '23', nome: 'Cestinha Recheada 1 bola', preco: 5.0, ativo: 1 },
     { id: 9, codigo: '25', nome: 'Colegial', preco: 18.0, ativo: 1 },
     { id: 10, codigo: '26', nome: 'Sundae Especial', preco: 17.0, ativo: 1 },
     { id: 11, codigo: '31', nome: 'Picolé Pistache/Brigadeiro', preco: 5.0, ativo: 1 },
