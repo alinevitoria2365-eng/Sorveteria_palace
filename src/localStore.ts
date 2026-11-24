@@ -10,7 +10,7 @@ import type {
   User,
 } from './types';
 
-const STORE_KEY = 'sorveteria_pdv_static_store_v8';
+const STORE_KEY = 'sorveteria_pdv_static_store_v9';
 
 interface StoreState {
   nextIds: {
@@ -79,7 +79,7 @@ function createInitialState(): StoreState {
   return {
     nextIds: {
       cliente: 6,
-      atendente: 4,
+      atendente: 7,
       produto: produtos.length + 1,
       pedido: 1,
       item: 1,
@@ -93,9 +93,12 @@ function createInitialState(): StoreState {
       { id: 5, nome: 'Fernanda Costa', telefone: '(11) 98456-7890', ativo: 1 },
     ],
     atendentes: [
-      { id: 1, nome: 'Ana Paula', ativo: 1 },
-      { id: 2, nome: 'Carlos Eduardo', ativo: 1 },
-      { id: 3, nome: 'Mariana Silva', ativo: 1 },
+      { id: 1, nome: 'Adriano', ativo: 1 },
+      { id: 2, nome: 'Gabi', ativo: 1 },
+      { id: 3, nome: 'Tânia', ativo: 1 },
+      { id: 4, nome: 'Yasmin', ativo: 1 },
+      { id: 5, nome: 'Cris', ativo: 1 },
+      { id: 6, nome: 'Aline', ativo: 1 },
     ],
     produtos,
     pedidos: [],

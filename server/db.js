@@ -113,14 +113,19 @@ function seedInitialData() {
     insertClient.run('Fernanda Costa', '(11) 98456-7890');
   }
 
-  const attendantCount = db.prepare('SELECT COUNT(*) AS count FROM atendentes').get().count;
-  if (attendantCount === 0) {
-    const insertAttendant = db.prepare(
-      'INSERT INTO atendentes (nome, ativo) VALUES (?, 1)'
-    );
-    insertAttendant.run('Ana Paula');
-    insertAttendant.run('Carlos Eduardo');
-    insertAttendant.run('Mariana Silva');
+  // Garantir atendentes fixos e desativar os antigos de exemplo
+  db.prepare(
+    "UPDATE atendentes SET ativo = 0 WHERE nome IN ('Ana Paula', 'Carlos Eduardo', 'Mariana Silva')"
+  ).run();
+
+  const atendentesFixos = ['Adriano', 'Gabi', 'Tânia', 'Yasmin', 'Cris', 'Aline'];
+  for (const nomeAt of atendentesFixos) {
+    const existingAt = db.prepare('SELECT id FROM atendentes WHERE nome = ?').get(nomeAt);
+    if (existingAt) {
+      db.prepare('UPDATE atendentes SET ativo = 1 WHERE id = ?').run(existingAt.id);
+    } else {
+      db.prepare('INSERT INTO atendentes (nome, ativo) VALUES (?, 1)').run(nomeAt);
+    }
   }
 
   const productCount = db.prepare('SELECT COUNT(*) AS count FROM produtos').get().count;
