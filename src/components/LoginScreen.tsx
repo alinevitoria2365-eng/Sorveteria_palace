@@ -116,7 +116,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
         <div className="text-center mb-7">
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#003377]">
-            SORVETERIA PDV
+            SORVETERIA PALÁCIO
           </h1>
           <p className="text-sm italic font-medium text-[#0c4a96] mt-1">
             Acesso ao Balcão

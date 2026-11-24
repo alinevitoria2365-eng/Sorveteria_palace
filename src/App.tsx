@@ -77,7 +77,7 @@ export function App() {
               <div className="w-10 h-10 rounded-full bg-gradient-to-b from-[#0a66cc] to-[#003f91] text-white flex items-center justify-center shadow-md shadow-blue-800/20">
                 <IceCreamCone className="w-5 h-5" />
               </div>
-              <span className="hidden sm:inline text-lg">SORVETERIA PDV</span>
+              <span className="hidden sm:inline text-lg">SORVETERIA PALÁCIO</span>
             </button>
 
             <nav className="flex items-center gap-1.5">
