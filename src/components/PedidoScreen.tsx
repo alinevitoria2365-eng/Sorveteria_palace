@@ -463,26 +463,6 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                 ))}
               </div>
             )}
-
-            {/* Barra azul Total: R$0,00 */}
-            <div className="bg-gradient-to-r from-[#003a82] to-[#0055b8] text-white px-5 py-3 flex items-center justify-between rounded-2xl">
-              <span className="text-sm font-bold">Total:</span>
-              <span className="text-base sm:text-lg font-black">
-                {formatCurrency(pedido.total)}
-              </span>
-            </div>
-
-            {/* Botão Fechar pedido alinhado à direita */}
-            <div className="flex justify-end pt-1">
-              <button
-                type="button"
-                disabled={itens.length === 0}
-                onClick={() => setShowFecharModal(true)}
-                className="px-7 py-2.5 rounded-full bg-gradient-to-r from-[#004ca8] via-[#005ec9] to-[#0070e0] hover:from-[#003d8a] hover:to-[#005ec9] text-white text-sm font-extrabold shadow-md shadow-blue-800/20 transition disabled:opacity-50 cursor-pointer"
-              >
-                Fechar pedido
-              </button>
-            </div>
           </div>
         </section>
       )}
@@ -588,13 +568,13 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
           </div>
         )}
 
-        {/* Rodapé Total + Fechar */}
-        <div className="px-6 py-5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
+        {/* Rodapé Total + Fechar pedido */}
+        <div className="px-6 py-5 bg-sky-50/80 border-t border-sky-100 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-xs font-extrabold uppercase tracking-wider text-[#0c4a96]">
               VALOR TOTAL
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+            <div className="text-2xl sm:text-3xl font-black text-[#003377]">
               {formatCurrency(pedido.total)}
             </div>
           </div>
@@ -604,10 +584,10 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
               type="button"
               disabled={itens.length === 0}
               onClick={() => setShowFecharModal(true)}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-extrabold text-base tracking-wide shadow-lg shadow-emerald-600/25 transition disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-[#004ca8] via-[#005ec9] to-[#0070e0] hover:from-[#003d8a] hover:to-[#005ec9] text-white font-extrabold text-sm sm:text-base tracking-wide shadow-lg shadow-blue-800/25 transition disabled:opacity-50 cursor-pointer"
             >
               <CheckCircle className="w-5 h-5" />
-              FECHAR
+              Fechar pedido
             </button>
           ) : (
             pedido.pagamento && (
