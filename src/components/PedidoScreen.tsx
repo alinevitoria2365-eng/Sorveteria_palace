@@ -619,21 +619,21 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
 
       {/* Modal Editar Pedido */}
       {showEditModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md p-6">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
-              <h3 className="text-lg font-extrabold text-slate-900">Editar Pedido #{pedido.id}</h3>
+        <div className="fixed inset-0 z-50 bg-[#0d2e1c]/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#fcfaf4] rounded-3xl shadow-[0_24px_60px_-15px_rgba(20,69,43,0.4)] border-2 border-[#8eb09b] w-full max-w-md p-6">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#dce8d8]">
+              <h3 className="text-lg font-black text-[#123d26]">Editar Pedido #{pedido.id}</h3>
               <button
                 type="button"
                 onClick={() => setShowEditModal(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="p-1.5 rounded-full text-[#1b5e3a] hover:bg-[#eef4ec] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleSaveEdit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
                   Cliente
                 </label>
                 <input
@@ -641,17 +641,17 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                   value={editClienteNome}
                   onChange={(e) => setEditClienteNome(e.target.value)}
                   placeholder="Digite o nome do cliente..."
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm"
+                  className="w-full px-4 py-2.5 rounded-full border border-[#7a9a86] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
                   Atendente
                 </label>
                 <select
                   value={editAtendenteId}
                   onChange={(e) => setEditAtendenteId(Number(e.target.value))}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm"
+                  className="w-full px-4 py-2.5 rounded-full border border-[#7a9a86] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a]"
                 >
                   {atendentes.map((a) => (
                     <option key={a.id} value={a.id}>
@@ -661,41 +661,41 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
                   Status
                 </label>
                 <select
                   value={editStatus}
                   onChange={(e) => setEditStatus(e.target.value as 'PENDENTE' | 'EM_ANDAMENTO')}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm"
+                  className="w-full px-4 py-2.5 rounded-full border border-[#7a9a86] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a]"
                 >
                   <option value="EM_ANDAMENTO">Em andamento</option>
                   <option value="PENDENTE">Pendente</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
                   Comentário
                 </label>
                 <textarea
                   rows={3}
                   value={editComentario}
                   onChange={(e) => setEditComentario(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm resize-none"
+                  className="w-full px-4 py-2.5 rounded-2xl border border-[#7a9a86] bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a] resize-none"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="py-2.5 rounded-xl border border-slate-300 text-sm font-bold text-slate-700 cursor-pointer"
+                  className="py-2.5 rounded-full border border-[#8eb09b] bg-white hover:bg-[#eef4ec] text-sm font-bold text-[#1b5e3a] cursor-pointer"
                 >
                   CANCELAR
                 </button>
                 <button
                   type="submit"
                   disabled={savingEdit}
-                  className="py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold cursor-pointer"
+                  className="py-2.5 rounded-full bg-gradient-to-r from-[#123d26] via-[#1b5e3a] to-[#267349] hover:from-[#0d2e1c] hover:to-[#1b5e3a] text-white text-sm font-extrabold shadow-md shadow-emerald-950/20 cursor-pointer"
                 >
                   {savingEdit ? 'SALVANDO...' : 'SALVAR'}
                 </button>
@@ -707,15 +707,15 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
 
       {/* Modal Confirmar Cancelamento */}
       {showCancelarModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-sm p-6 text-center">
+        <div className="fixed inset-0 z-50 bg-[#0d2e1c]/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#fcfaf4] rounded-3xl shadow-[0_24px_60px_-15px_rgba(20,69,43,0.4)] border-2 border-[#8eb09b] w-full max-w-sm p-6 text-center">
             <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4">
               <Ban className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-extrabold text-slate-900 mb-2">
+            <h3 className="text-lg font-black text-[#123d26] mb-2">
               Cancelar Pedido #{pedido.id}
             </h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <p className="text-sm text-[#1b5e3a] mb-6">
               Tem certeza que deseja cancelar este pedido?
             </p>
             <div className="grid grid-cols-2 gap-3">
@@ -723,7 +723,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                 type="button"
                 onClick={() => setShowCancelarModal(false)}
                 disabled={canceling}
-                className="py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-sm cursor-pointer"
+                className="py-3 rounded-full border border-[#8eb09b] bg-white hover:bg-[#eef4ec] text-[#1b5e3a] font-bold text-sm cursor-pointer"
               >
                 CANCELAR
               </button>
@@ -731,7 +731,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                 type="button"
                 onClick={handleConfirmCancel}
                 disabled={canceling}
-                className="py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm cursor-pointer"
+                className="py-3 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm cursor-pointer"
               >
                 {canceling ? 'CANCELANDO...' : 'CONFIRMAR'}
               </button>
@@ -741,23 +741,23 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
       )}
       {/* Modal Preço Self Service (Código 01) */}
       {selfServiceTarget && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-sm p-6">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
-              <h3 className="text-lg font-extrabold text-slate-900">
+        <div className="fixed inset-0 z-50 bg-[#0d2e1c]/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#fcfaf4] rounded-3xl shadow-[0_24px_60px_-15px_rgba(20,69,43,0.4)] border-2 border-[#8eb09b] w-full max-w-sm p-6">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#dce8d8]">
+              <h3 className="text-lg font-black text-[#123d26]">
                 01 - Self service
               </h3>
               <button
                 type="button"
                 onClick={() => setSelfServiceTarget(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="p-1.5 rounded-full text-[#1b5e3a] hover:bg-[#eef4ec] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleSubmitSelfService} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1.5">
+                <label className="block text-xs font-extrabold uppercase text-[#123d26] mb-1.5 ml-1">
                   Preço (R$)
                 </label>
                 <input
@@ -767,20 +767,20 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                   value={selfServicePrecoStr}
                   onChange={(e) => setSelfServicePrecoStr(e.target.value)}
                   placeholder="Ex: 18,50"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-lg font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="w-full px-4 py-3 rounded-full border border-[#7a9a86] bg-white text-lg font-bold text-[#123d26] focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a]"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setSelfServiceTarget(null)}
-                  className="py-3 rounded-xl border border-slate-300 text-sm font-bold text-slate-700 cursor-pointer"
+                  className="py-3 rounded-full border border-[#8eb09b] bg-white hover:bg-[#eef4ec] text-sm font-bold text-[#1b5e3a] cursor-pointer"
                 >
                   CANCELAR
                 </button>
                 <button
                   type="submit"
-                  className="py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold cursor-pointer"
+                  className="py-3 rounded-full bg-gradient-to-r from-[#123d26] via-[#1b5e3a] to-[#267349] hover:from-[#0d2e1c] hover:to-[#1b5e3a] text-white text-sm font-extrabold shadow-md shadow-emerald-950/20 cursor-pointer"
                 >
                   CONFIRMAR
                 </button>
