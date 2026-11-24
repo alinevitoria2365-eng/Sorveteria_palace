@@ -36,6 +36,10 @@ export default defineConfig({
           fs.rmSync(rootAssets, { recursive: true, force: true });
           fs.cpSync(distAssets, rootAssets, { recursive: true });
         }
+        const distLogo = path.join(distDir, 'logo-palacio.png');
+        if (fs.existsSync(distLogo)) {
+          fs.copyFileSync(distLogo, path.resolve('logo-palacio.png'));
+        }
       },
     },
   ],

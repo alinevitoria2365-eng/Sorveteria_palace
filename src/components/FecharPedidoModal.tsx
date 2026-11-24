@@ -122,34 +122,34 @@ export const FecharPedidoModal: React.FC<FecharPedidoModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#00285c]/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-[0_24px_60px_-15px_rgba(0,64,145,0.4)] border-2 border-[#7cc0ff] w-full max-w-4xl overflow-hidden my-auto">
+    <div className="fixed inset-0 z-50 bg-[#0d2e1c]/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-[0_24px_60px_-15px_rgba(20,69,43,0.4)] border-2 border-[#8eb09b] w-full max-w-4xl overflow-hidden my-auto">
         {/* Corpo em 2 colunas lado a lado */}
-        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-sky-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#b4ccbc]">
           {/* ESQUERDA: PRODUTO ADICIONADO */}
           <div className="flex flex-col justify-between bg-white">
             <div>
-              <div className="bg-gradient-to-r from-[#00449e] to-[#0066cc] px-5 py-3 flex items-center justify-between">
+              <div className="bg-gradient-to-r from-[#14452b] to-[#1b5e3a] px-5 py-3 flex items-center justify-between">
                 <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
                   PRODUTO ADICIONADO (#{pedido.id})
                 </h2>
               </div>
 
-              <div className="divide-y divide-sky-100 max-h-72 overflow-y-auto">
+              <div className="divide-y divide-[#dce8d8] max-h-72 overflow-y-auto">
                 {itens.map((item) => (
                   <div
                     key={item.id}
                     className="px-5 py-3 flex items-center justify-between gap-3 text-sm"
                   >
                     <div className="min-w-0">
-                      <div className="font-bold text-[#003377] truncate">
+                      <div className="font-bold text-[#123d26] truncate">
                         {item.quantidade}x {item.nomeProduto}
                       </div>
-                      <div className="text-xs text-[#0c4a96]/70">
+                      <div className="text-xs text-[#1b5e3a]/70">
                         Cód: {item.codigoProduto} • Unit: {formatCurrency(item.precoUnitario)}
                       </div>
                     </div>
-                    <div className="font-extrabold text-[#003377] shrink-0">
+                    <div className="font-extrabold text-[#123d26] shrink-0">
                       {formatCurrency(item.subtotal)}
                     </div>
                   </div>
@@ -158,11 +158,11 @@ export const FecharPedidoModal: React.FC<FecharPedidoModalProps> = ({
             </div>
 
             <div>
-              <div className="px-5 py-2.5 bg-sky-50 border-t border-sky-100 flex items-center justify-between text-sm">
-                <span className="font-semibold text-[#0c4a96]">Subtotal:</span>
-                <span className="font-bold text-[#003377]">{formatCurrency(pedido.subtotal)}</span>
+              <div className="px-5 py-2.5 bg-[#eef4ec] border-t border-[#dce8d8] flex items-center justify-between text-sm">
+                <span className="font-semibold text-[#1b5e3a]">Subtotal:</span>
+                <span className="font-bold text-[#123d26]">{formatCurrency(pedido.subtotal)}</span>
               </div>
-              <div className="px-5 py-3.5 bg-gradient-to-r from-[#003a82] to-[#0055b8] text-white flex items-center justify-between">
+              <div className="px-5 py-3.5 bg-gradient-to-r from-[#123d26] to-[#1b5e3a] text-white flex items-center justify-between">
                 <span className="text-sm font-bold">Total:</span>
                 <span className="text-lg font-black">{formatCurrency(pedido.total)}</span>
               </div>
@@ -170,10 +170,10 @@ export const FecharPedidoModal: React.FC<FecharPedidoModalProps> = ({
           </div>
 
           {/* DIREITA: PAGAR */}
-          <div className="flex flex-col justify-between bg-sky-50/40">
+          <div className="flex flex-col justify-between bg-[#eef4ec]/40">
             <div>
               {/* Cabeçalho azul PAGAR + botão + */}
-              <div className="bg-gradient-to-r from-[#00449e] to-[#0066cc] px-5 py-2.5 flex items-center justify-between">
+              <div className="bg-gradient-to-r from-[#14452b] to-[#1b5e3a] px-5 py-2.5 flex items-center justify-between">
                 <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
                   PAGAR
                 </h2>
@@ -198,7 +198,7 @@ export const FecharPedidoModal: React.FC<FecharPedidoModalProps> = ({
                           formaPagamento: e.target.value as FormaPagamento,
                         })
                       }
-                      className="flex-1 min-w-[130px] h-10 px-3.5 rounded-full border border-[#5aa3ec] bg-white text-sm font-bold text-[#003377] focus:outline-none focus:border-[#0059c9]"
+                      className="flex-1 min-w-[130px] h-10 px-3.5 rounded-full border border-[#7a9a86] bg-white text-sm font-bold text-[#123d26] focus:outline-none focus:border-[#1b5e3a]"
                     >
                       {METODOS.map((m) => (
                         <option key={m} value={m}>
@@ -207,21 +207,21 @@ export const FecharPedidoModal: React.FC<FecharPedidoModalProps> = ({
                       ))}
                     </select>
 
-                    <span className="text-sm font-extrabold text-[#003377]">R$</span>
+                    <span className="text-sm font-extrabold text-[#123d26]">R$</span>
 
                     <input
                       type="text"
                       inputMode="decimal"
                       value={line.valorStr}
                       onChange={(e) => handleUpdateLine(line.id, { valorStr: e.target.value })}
-                      className="w-28 h-10 px-3.5 rounded-full border border-[#5aa3ec] bg-white text-sm font-extrabold text-[#003377] focus:outline-none focus:border-[#0059c9]"
+                      className="w-28 h-10 px-3.5 rounded-full border border-[#7a9a86] bg-white text-sm font-extrabold text-[#123d26] focus:outline-none focus:border-[#1b5e3a]"
                     />
 
                     <button
                       type="button"
                       onClick={() => handleRemoveLine(line.id)}
                       title="Remover linha"
-                      className="p-1.5 text-[#0c4a96] hover:text-rose-600 transition cursor-pointer"
+                      className="p-1.5 text-[#1b5e3a] hover:text-rose-600 transition cursor-pointer"
                     >
                       <X className="w-4 h-4 stroke-[2.5]" />
                     </button>
@@ -239,23 +239,23 @@ export const FecharPedidoModal: React.FC<FecharPedidoModalProps> = ({
 
             {/* Rodapé Troco + Botões Cancelar / Fechar pedido */}
             <div>
-              <div className="px-5 py-3 bg-sky-100/80 border-t border-sky-200 flex items-center justify-between">
-                <span className="text-sm font-bold text-[#0c4a96]">Troco:</span>
+              <div className="px-5 py-3 bg-[#dfeadc]/80 border-t border-[#b4ccbc] flex items-center justify-between">
+                <span className="text-sm font-bold text-[#1b5e3a]">Troco:</span>
                 <span
                   className={`text-lg font-black ${
-                    valorInsuficiente ? 'text-rose-600' : 'text-[#003377]'
+                    valorInsuficiente ? 'text-rose-600' : 'text-[#123d26]'
                   }`}
                 >
                   {valorInsuficiente ? 'Insuficiente' : formatCurrency(troco)}
                 </span>
               </div>
 
-              <div className="px-5 py-3.5 bg-white border-t border-sky-100 flex items-center justify-end gap-3">
+              <div className="px-5 py-3.5 bg-white border-t border-[#dce8d8] flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={onClose}
                   disabled={submitting}
-                  className="px-5 py-2.5 rounded-full border border-[#7cc0ff] bg-white hover:bg-sky-50 text-[#0c4a96] text-sm font-bold transition cursor-pointer"
+                  className="px-5 py-2.5 rounded-full border border-[#8eb09b] bg-white hover:bg-[#eef4ec] text-[#1b5e3a] text-sm font-bold transition cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -263,7 +263,7 @@ export const FecharPedidoModal: React.FC<FecharPedidoModalProps> = ({
                   type="button"
                   onClick={handleFinalizar}
                   disabled={submitting || valorInsuficiente}
-                  className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#004ca8] via-[#005ec9] to-[#0070e0] hover:from-[#003d8a] hover:to-[#005ec9] text-white text-sm font-extrabold shadow-md shadow-blue-800/20 transition disabled:opacity-50 cursor-pointer"
+                  className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#123d26] via-[#1b5e3a] to-[#267349] hover:from-[#0d2e1c] hover:to-[#1b5e3a] text-white text-sm font-extrabold shadow-md shadow-emerald-950/20 transition disabled:opacity-50 cursor-pointer"
                 >
                   {submitting ? 'Fechando...' : 'Fechar pedido'}
                 </button>

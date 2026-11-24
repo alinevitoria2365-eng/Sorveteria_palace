@@ -7,7 +7,7 @@ interface LoginScreenProps {
   onLoginSuccess: (user: User) => void;
 }
 
-const IceCreamLogoSvg: React.FC<{ className?: string }> = ({ className = 'w-9 h-9' }) => (
+const IceCreamDoodleSvg: React.FC<{ className?: string }> = ({ className = 'w-9 h-9' }) => (
   <svg viewBox="0 0 64 64" fill="none" className={className} aria-hidden="true">
     <path
       d="M20 28C20 21.3726 25.3726 16 32 16C38.6274 16 44 21.3726 44 28C45.6569 28 47 29.3431 47 31C47 32.6569 45.6569 34 44 34H20C18.3431 34 17 32.6569 17 31C17 29.3431 18.3431 28 20 28Z"
@@ -58,10 +58,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#d8ecff] via-[#cbe6ff] to-[#b5dcff] flex items-center justify-center p-4 pt-14">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#f5f2e8] via-[#ebf1e6] to-[#d8e6d5] flex items-center justify-center p-4 pt-16">
       {/* Ondas e formas suaves de fundo */}
       <svg
-        className="pointer-events-none absolute bottom-0 left-0 w-full h-44 text-[#1d6fd6]/25"
+        className="pointer-events-none absolute bottom-0 left-0 w-full h-44 text-[#5b8269]/25"
         viewBox="0 0 1440 320"
         preserveAspectRatio="none"
       >
@@ -71,7 +71,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         />
       </svg>
       <svg
-        className="pointer-events-none absolute bottom-0 left-0 w-full h-28 text-[#0052b4]/85"
+        className="pointer-events-none absolute bottom-0 left-0 w-full h-28 text-[#14452b]/85"
         viewBox="0 0 1440 320"
         preserveAspectRatio="none"
       >
@@ -82,13 +82,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       </svg>
 
       {/* Ilustração decorativa canto superior esquerdo */}
-      <div className="pointer-events-none absolute -top-3 left-3 sm:left-10 text-[#1c6dd0]/60 -rotate-12">
-        <IceCreamLogoSvg className="w-28 h-28 sm:w-36 sm:h-36" />
+      <div className="pointer-events-none absolute -top-3 left-3 sm:left-10 text-[#1b5e3a]/35 -rotate-12">
+        <IceCreamDoodleSvg className="w-28 h-28 sm:w-36 sm:h-36" />
       </div>
 
       {/* Tracinhos decorativos canto superior direito */}
       <svg
-        className="pointer-events-none absolute top-8 right-6 sm:right-14 w-16 h-16 text-[#1c6dd0]/70"
+        className="pointer-events-none absolute top-8 right-6 sm:right-14 w-16 h-16 text-[#1b5e3a]/40"
         viewBox="0 0 64 64"
         fill="none"
       >
@@ -96,65 +96,69 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       </svg>
 
       {/* Ilustração decorativa canto inferior direito */}
-      <div className="pointer-events-none absolute -bottom-2 right-2 sm:right-10 text-[#00449e]/50 rotate-12">
-        <IceCreamLogoSvg className="w-28 h-28 sm:w-36 sm:h-36" />
+      <div className="pointer-events-none absolute -bottom-2 right-2 sm:right-10 text-[#14452b]/35 rotate-12">
+        <IceCreamDoodleSvg className="w-28 h-28 sm:w-36 sm:h-36" />
       </div>
 
       {/* Card Central */}
-      <div className="relative z-10 w-full max-w-md bg-white/95 backdrop-blur-xs rounded-[28px] border-2 border-[#6ab0f3] shadow-[0_18px_45px_-12px_rgba(0,72,160,0.28)] px-7 sm:px-10 pt-12 pb-8">
-        {/* Badge Circular Flutuante no Topo */}
-        <div className="absolute -top-9 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full bg-gradient-to-b from-[#0a66cc] to-[#003f91] text-white flex items-center justify-center shadow-lg shadow-blue-900/30 ring-4 ring-white">
-          <IceCreamLogoSvg className="w-11 h-11" />
+      <div className="relative z-10 w-full max-w-md bg-[#fcfaf4]/95 backdrop-blur-xs rounded-[28px] border-2 border-[#8eb09b] shadow-[0_18px_45px_-12px_rgba(20,69,43,0.28)] px-7 sm:px-10 pt-14 pb-8">
+        {/* Logo Circular Flutuante no Topo */}
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full bg-[#f8f4e8] shadow-lg shadow-emerald-950/25 ring-4 ring-white overflow-hidden">
+          <img
+            src="./logo-palacio.png"
+            alt="Palácio do Sorvete"
+            className="w-full h-full object-cover"
+          />
         </div>
 
         {/* Linhas laterais do topo + Título */}
         <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="h-[1.5px] flex-1 bg-gradient-to-r from-transparent to-[#5aa3ec]" />
-          <div className="w-14" />
-          <div className="h-[1.5px] flex-1 bg-gradient-to-l from-transparent to-[#5aa3ec]" />
+          <div className="h-[1.5px] flex-1 bg-gradient-to-r from-transparent to-[#7a9a86]" />
+          <div className="w-16" />
+          <div className="h-[1.5px] flex-1 bg-gradient-to-l from-transparent to-[#7a9a86]" />
         </div>
 
         <div className="text-center mb-7">
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#003377]">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#123d26]">
             SORVETERIA PALÁCIO
           </h1>
-          <p className="text-sm italic font-medium text-[#0c4a96] mt-1">
+          <p className="text-sm italic font-semibold text-[#5c1d3d] mt-1">
             Acesso ao Balcão
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[#003377] mb-1.5 ml-1">
-              <UserIcon className="w-3.5 h-3.5 text-[#00449e]" />
+            <label className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
+              <UserIcon className="w-3.5 h-3.5 text-[#1b5e3a]" />
               USUÁRIO
             </label>
             <div className="relative">
-              <UserIcon className="w-4 h-4 text-[#0c4a96] absolute left-4 top-1/2 -translate-y-1/2" />
+              <UserIcon className="w-4 h-4 text-[#1b5e3a] absolute left-4 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={usuario}
                 onChange={(e) => setUsuario(e.target.value)}
                 placeholder="Digite seu usuário"
                 autoFocus
-                className="w-full pl-11 pr-4 py-3 rounded-full border border-[#5aa3ec] bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0059c9]/30 focus:border-[#0059c9] transition"
+                className="w-full pl-11 pr-4 py-3 rounded-full border border-[#8eb09b] bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a] transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[#003377] mb-1.5 ml-1">
-              <Lock className="w-3.5 h-3.5 text-[#00449e]" />
+            <label className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
+              <Lock className="w-3.5 h-3.5 text-[#1b5e3a]" />
               SENHA
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-[#0c4a96] absolute left-4 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-[#1b5e3a] absolute left-4 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 placeholder="Digite sua senha"
-                className="w-full pl-11 pr-4 py-3 rounded-full border border-[#5aa3ec] bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0059c9]/30 focus:border-[#0059c9] transition"
+                className="w-full pl-11 pr-4 py-3 rounded-full border border-[#8eb09b] bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a] transition"
               />
             </div>
           </div>
@@ -169,7 +173,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 mt-2 rounded-full bg-gradient-to-r from-[#004ca8] via-[#005ec9] to-[#0070e0] hover:from-[#003d8a] hover:to-[#005ec9] text-white font-extrabold tracking-wider shadow-lg shadow-blue-800/25 transition disabled:opacity-60 cursor-pointer"
+            className="w-full py-3.5 mt-2 rounded-full bg-gradient-to-r from-[#123d26] via-[#1b5e3a] to-[#267349] hover:from-[#0d2e1c] hover:to-[#1b5e3a] text-white font-extrabold tracking-wider shadow-lg shadow-emerald-950/25 transition disabled:opacity-60 cursor-pointer"
           >
             {loading ? 'ENTRANDO...' : 'ENTRAR'}
           </button>
@@ -178,14 +182,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         {/* Rodapé com divisor e ícone */}
         <div className="mt-6">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#7ab8f5]" />
-            <IceCreamLogoSvg className="w-5 h-5 text-[#0c4a96]" />
-            <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-[#7ab8f5]" />
+            <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#8eb09b]" />
+            <IceCreamDoodleSvg className="w-5 h-5 text-[#1b5e3a]" />
+            <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-[#8eb09b]" />
           </div>
-          <p className="text-center text-xs text-[#0c4a96]">
-            Acesso padrão: <span className="font-bold text-[#003377]">admin</span> ou{' '}
-            <span className="font-bold text-[#003377]">balcao</span> • Senha:{' '}
-            <span className="font-bold text-[#003377]">123456</span>
+          <p className="text-center text-xs text-[#1b5e3a]">
+            Acesso padrão: <span className="font-bold text-[#123d26]">admin</span> ou{' '}
+            <span className="font-bold text-[#123d26]">balcao</span> • Senha:{' '}
+            <span className="font-bold text-[#123d26]">123456</span>
           </p>
         </div>
       </div>

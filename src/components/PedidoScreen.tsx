@@ -275,7 +275,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
       ? 'bg-rose-100 text-rose-800'
       : pedido.status === 'PENDENTE'
       ? 'bg-amber-100 text-amber-800'
-      : 'bg-sky-100 text-sky-800';
+      : 'bg-[#dfeadc] text-sky-800';
 
   return (
     <div className={embedded ? 'space-y-4' : 'max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6'}>
@@ -284,7 +284,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
         <button
           type="button"
           onClick={onBackToBalcao}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#7cc0ff] bg-white hover:bg-sky-50 text-[#0c4a96] text-sm font-bold shadow-xs transition cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#8eb09b] bg-white hover:bg-[#eef4ec] text-[#1b5e3a] text-sm font-bold shadow-xs transition cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           {embedded ? 'Fechar painel' : 'Voltar ao Balcão'}
@@ -310,11 +310,11 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
       )}
 
       {/* Cabeçalho do Pedido */}
-      <section className="bg-white/95 rounded-3xl border-2 border-[#8ec8ff] shadow-[0_12px_32px_-12px_rgba(0,82,180,0.18)] p-5 sm:p-6">
+      <section className="bg-white/95 rounded-3xl border-2 border-[#9dbb9f] shadow-[0_12px_32px_-12px_rgba(20,69,43,0.18)] p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black text-[#003377]">
+              <h1 className="text-2xl sm:text-3xl font-black text-[#123d26]">
                 ID #{pedido.id}
               </h1>
               <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusBadge}`}>
@@ -324,30 +324,30 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                 <button
                   type="button"
                   onClick={openEditModal}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-sky-200 bg-sky-50 hover:bg-sky-100 text-[#0c4a96] text-xs font-bold transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#b4ccbc] bg-[#eef4ec] hover:bg-[#dfeadc] text-[#1b5e3a] text-xs font-bold transition cursor-pointer"
                 >
                   <Pencil className="w-3.5 h-3.5" />
                   Editar
                 </button>
               )}
             </div>
-            <p className="text-xs sm:text-sm text-[#0c4a96]/80 mt-1.5">
-              Hora: <span className="font-bold text-[#003377]">{formatDateTime(pedido.dataHoraCriacao)}</span>
+            <p className="text-xs sm:text-sm text-[#1b5e3a]/80 mt-1.5">
+              Hora: <span className="font-bold text-[#123d26]">{formatDateTime(pedido.dataHoraCriacao)}</span>
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 text-sm">
             <div>
-              <span className="text-[#0c4a96]/70 text-xs font-extrabold uppercase">Cliente: </span>
-              <span className="font-bold text-[#003377]">{pedido.clienteNome}</span>
+              <span className="text-[#1b5e3a]/70 text-xs font-extrabold uppercase">Cliente: </span>
+              <span className="font-bold text-[#123d26]">{pedido.clienteNome}</span>
             </div>
             <div>
-              <span className="text-[#0c4a96]/70 text-xs font-extrabold uppercase">Atendente: </span>
-              <span className="font-bold text-[#003377]">{pedido.atendenteNome}</span>
+              <span className="text-[#1b5e3a]/70 text-xs font-extrabold uppercase">Atendente: </span>
+              <span className="font-bold text-[#123d26]">{pedido.atendenteNome}</span>
             </div>
             {pedido.comentario && (
-              <div className="sm:col-span-2 mt-1 text-xs text-[#003377] bg-sky-50 rounded-xl px-3 py-1.5 border border-sky-200">
-                <span className="font-extrabold text-[#0c4a96]">Obs: </span>
+              <div className="sm:col-span-2 mt-1 text-xs text-[#123d26] bg-[#eef4ec] rounded-xl px-3 py-1.5 border border-[#b4ccbc]">
+                <span className="font-extrabold text-[#1b5e3a]">Obs: </span>
                 {pedido.comentario}
               </div>
             )}
@@ -357,9 +357,9 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
 
       {/* Área ADICIONAR */}
       {isEditable && (
-        <section className="bg-white/95 rounded-3xl border-2 border-[#7cc0ff] shadow-[0_14px_38px_-12px_rgba(0,82,180,0.22)] overflow-hidden">
+        <section className="bg-white/95 rounded-3xl border-2 border-[#8eb09b] shadow-[0_14px_38px_-12px_rgba(20,69,43,0.22)] overflow-hidden">
           {/* Cabeçalho azul royal: ADICIONAR + botão engrenagem */}
-          <div className="bg-gradient-to-r from-[#00449e] to-[#0066cc] px-5 py-3 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-[#14452b] to-[#1b5e3a] px-5 py-3 flex items-center justify-between">
             <h2 className="text-sm font-black uppercase tracking-wider text-white">
               ADICIONAR
             </h2>
@@ -375,7 +375,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
 
           <div className="p-4 space-y-4">
             {/* Barra de busca azul suave com botão + azul royal */}
-            <div className="bg-sky-50/90 border border-sky-200 rounded-2xl p-2.5 flex items-center gap-2.5">
+            <div className="bg-[#eef4ec]/90 border border-[#b4ccbc] rounded-2xl p-2.5 flex items-center gap-2.5">
               <button
                 type="button"
                 onClick={() => {
@@ -392,7 +392,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                 }}
                 disabled={addingItem}
                 title="Adicionar produto"
-                className="w-10 h-10 shrink-0 rounded-full bg-gradient-to-r from-[#004ca8] to-[#0066cc] hover:from-[#003d8a] hover:to-[#005ec9] text-white flex items-center justify-center shadow-sm transition cursor-pointer"
+                className="w-10 h-10 shrink-0 rounded-full bg-gradient-to-r from-[#123d26] to-[#1b5e3a] hover:from-[#0d2e1c] hover:to-[#1b5e3a] text-white flex items-center justify-center shadow-sm transition cursor-pointer"
               >
                 <Plus className="w-5 h-5 stroke-[2.5]" />
               </button>
@@ -405,7 +405,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                   onChange={(e) => setBusca(e.target.value)}
                   onKeyDown={handleBuscaKeyDown}
                   placeholder="Buscar produto..."
-                  className="w-full h-10 px-4 pr-9 rounded-full border border-[#5aa3ec] bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0059c9]/30 focus:border-[#0059c9]"
+                  className="w-full h-10 px-4 pr-9 rounded-full border border-[#7a9a86] bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a]"
                 />
                 {busca && (
                   <button
@@ -414,7 +414,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                       setBusca('');
                       buscaInputRef.current?.focus();
                     }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#003377] cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#123d26] cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -422,14 +422,14 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
               </div>
 
               {showQtdConfig && (
-                <div className="flex items-center gap-1.5 bg-white border border-[#5aa3ec] rounded-full px-3 h-10 shrink-0">
-                  <span className="text-xs font-bold text-[#0c4a96]">Qtd:</span>
+                <div className="flex items-center gap-1.5 bg-white border border-[#7a9a86] rounded-full px-3 h-10 shrink-0">
+                  <span className="text-xs font-bold text-[#1b5e3a]">Qtd:</span>
                   <input
                     type="number"
                     min={1}
                     value={quantidadeAdd}
                     onChange={(e) => setQuantidadeAdd(Math.max(1, Number(e.target.value) || 1))}
-                    className="w-12 text-center font-bold text-sm text-[#003377] focus:outline-none"
+                    className="w-12 text-center font-bold text-sm text-[#123d26] focus:outline-none"
                   />
                 </div>
               )}
@@ -449,12 +449,12 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                     disabled={addingItem}
                     onClick={() => handleAddProduto(prod)}
                     title={`${prod.codigo} - ${prod.nome} (${formatCurrency(prod.preco)})`}
-                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-sky-200 bg-sky-50/70 hover:bg-sky-100 hover:border-[#5aa3ec] active:bg-sky-200 text-left transition cursor-pointer disabled:opacity-60"
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-[#b4ccbc] bg-[#eef4ec]/70 hover:bg-[#dfeadc] hover:border-[#7a9a86] active:bg-[#cfe0cb] text-left transition cursor-pointer disabled:opacity-60"
                   >
-                    <span className="font-extrabold text-[#00449e] text-xs sm:text-sm shrink-0">
+                    <span className="font-extrabold text-[#14452b] text-xs sm:text-sm shrink-0">
                       {prod.codigo}
                     </span>
-                    <span className="text-[#003377] font-medium text-xs sm:text-sm truncate">
+                    <span className="text-[#123d26] font-medium text-xs sm:text-sm truncate">
                       {prod.nome}
                     </span>
                   </button>
@@ -466,12 +466,12 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
       )}
 
       {/* Lista de Produtos do Pedido */}
-      <section className="bg-white/95 rounded-3xl border-2 border-[#8ec8ff] shadow-[0_12px_32px_-12px_rgba(0,82,180,0.18)] overflow-hidden">
-        <div className="px-6 py-4 border-b border-sky-100 bg-sky-50/70 flex items-center justify-between">
-          <h2 className="text-xs font-black uppercase tracking-wider text-[#003377]">
+      <section className="bg-white/95 rounded-3xl border-2 border-[#9dbb9f] shadow-[0_12px_32px_-12px_rgba(20,69,43,0.18)] overflow-hidden">
+        <div className="px-6 py-4 border-b border-[#dce8d8] bg-[#eef4ec]/70 flex items-center justify-between">
+          <h2 className="text-xs font-black uppercase tracking-wider text-[#123d26]">
             PRODUTOS DO PEDIDO
           </h2>
-          <span className="text-xs font-extrabold text-[#0c4a96]">
+          <span className="text-xs font-extrabold text-[#1b5e3a]">
             {itens.reduce((acc, i) => acc + i.quantidade, 0)} item(ns)
           </span>
         </div>
@@ -489,7 +489,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2.5 flex-wrap">
-                    <span className="font-extrabold text-sky-700 text-base">
+                    <span className="font-extrabold text-[#1b5e3a] text-base">
                       {item.quantidade}x
                     </span>
                     <span className="font-bold text-slate-900 text-base">
@@ -509,7 +509,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                           setSelfServicePrecoStr(item.precoUnitario.toFixed(2).replace('.', ','));
                           setSelfServiceQtd(item.quantidade);
                         }}
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold transition cursor-pointer"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#eef4ec] hover:bg-[#dfeadc] text-[#1b5e3a] font-bold transition cursor-pointer"
                       >
                         <Pencil className="w-3 h-3" />
                         Alterar preço
@@ -567,12 +567,12 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
         )}
 
         {/* Rodapé Total + Fechar pedido */}
-        <div className="px-6 py-5 bg-sky-50/80 border-t border-sky-100 flex flex-wrap items-center justify-between gap-4">
+        <div className="px-6 py-5 bg-[#eef4ec]/80 border-t border-[#dce8d8] flex flex-wrap items-center justify-between gap-4">
           <div>
-            <div className="text-xs font-extrabold uppercase tracking-wider text-[#0c4a96]">
+            <div className="text-xs font-extrabold uppercase tracking-wider text-[#1b5e3a]">
               VALOR TOTAL
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-[#003377]">
+            <div className="text-2xl sm:text-3xl font-black text-[#123d26]">
               {formatCurrency(pedido.total)}
             </div>
           </div>
@@ -582,7 +582,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
               type="button"
               disabled={itens.length === 0}
               onClick={() => setShowFecharModal(true)}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-[#004ca8] via-[#005ec9] to-[#0070e0] hover:from-[#003d8a] hover:to-[#005ec9] text-white font-extrabold text-sm sm:text-base tracking-wide shadow-lg shadow-blue-800/25 transition disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-[#123d26] via-[#1b5e3a] to-[#267349] hover:from-[#0d2e1c] hover:to-[#1b5e3a] text-white font-extrabold text-sm sm:text-base tracking-wide shadow-lg shadow-emerald-950/25 transition disabled:opacity-50 cursor-pointer"
             >
               <CheckCircle className="w-5 h-5" />
               Fechar pedido

@@ -119,7 +119,7 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-sky-100 text-xs font-extrabold uppercase tracking-wider text-[#0c4a96] bg-sky-50/60">
+            <tr className="border-b border-[#dce8d8] text-xs font-extrabold uppercase tracking-wider text-[#1b5e3a] bg-[#eef4ec]/60">
               <th className="py-3 px-4">ID</th>
               <th className="py-3 px-4">HORA</th>
               <th className="py-3 px-4">STATUS</th>
@@ -127,7 +127,7 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
               <th className="py-3 px-4 text-right">TOTAL</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-sky-100/80 text-sm">
+          <tbody className="divide-y divide-[#dce8d8]/80 text-sm">
             {list.map((pedido) => (
               <tr
                 key={pedido.id}
@@ -135,11 +135,11 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
                   setActivePedidoId(pedido.id);
                   setShowNovoPedido(true);
                 }}
-                className={`hover:bg-sky-50/90 cursor-pointer transition-colors ${
-                  activePedidoId === pedido.id ? 'bg-sky-100/70' : ''
+                className={`hover:bg-[#eef4ec]/90 cursor-pointer transition-colors ${
+                  activePedidoId === pedido.id ? 'bg-[#dfeadc]/70' : ''
                 }`}
               >
-                <td className="py-3.5 px-4 font-extrabold text-[#003377]">#{pedido.id}</td>
+                <td className="py-3.5 px-4 font-extrabold text-[#123d26]">#{pedido.id}</td>
                 <td className="py-3.5 px-4 text-slate-600 font-medium">
                   {formatTime(pedido.dataHoraCriacao)}
                 </td>
@@ -173,14 +173,14 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#003377]">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#123d26]">
             BALCÃO
           </h1>
           <button
             type="button"
             onClick={loadData}
             title="Atualizar pedidos"
-            className="p-2.5 rounded-full border border-[#7cc0ff] bg-white text-[#0c4a96] hover:bg-sky-50 shadow-xs transition cursor-pointer"
+            className="p-2.5 rounded-full border border-[#8eb09b] bg-white text-[#1b5e3a] hover:bg-[#eef4ec] shadow-xs transition cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -189,7 +189,7 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
         <button
           type="button"
           onClick={handleOpenNewOrderPanel}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#004ca8] via-[#005ec9] to-[#0070e0] hover:from-[#003d8a] hover:to-[#005ec9] text-white font-extrabold text-sm tracking-wide shadow-lg shadow-blue-800/25 transition cursor-pointer"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#123d26] via-[#1b5e3a] to-[#267349] hover:from-[#0d2e1c] hover:to-[#1b5e3a] text-white font-extrabold text-sm tracking-wide shadow-lg shadow-emerald-950/25 transition cursor-pointer"
         >
           <Plus className="w-5 h-5" />
           NOVO PEDIDO
@@ -214,8 +214,8 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
           } space-y-6`}
         >
           {/* Seção PENDENTE */}
-          <section className="bg-white/95 rounded-3xl border-2 border-[#8ec8ff] shadow-[0_12px_32px_-12px_rgba(0,82,180,0.18)] overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-sky-100 bg-amber-50/90 flex items-center justify-between">
+          <section className="bg-white/95 rounded-3xl border-2 border-[#9dbb9f] shadow-[0_12px_32px_-12px_rgba(20,69,43,0.18)] overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-[#dce8d8] bg-amber-50/90 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-amber-600" />
                 <h2 className="text-sm font-black uppercase tracking-wider text-amber-900">
@@ -230,10 +230,10 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
           </section>
 
           {/* Seção EM ANDAMENTO */}
-          <section className="bg-white/95 rounded-3xl border-2 border-[#8ec8ff] shadow-[0_12px_32px_-12px_rgba(0,82,180,0.18)] overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-sky-100 bg-gradient-to-r from-[#004ca8] to-[#0066cc] flex items-center justify-between">
+          <section className="bg-white/95 rounded-3xl border-2 border-[#9dbb9f] shadow-[0_12px_32px_-12px_rgba(20,69,43,0.18)] overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-[#dce8d8] bg-gradient-to-r from-[#123d26] to-[#1b5e3a] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-sky-100" />
+                <CheckCircle2 className="w-5 h-5 text-[#dfeadc]" />
                 <h2 className="text-sm font-black uppercase tracking-wider text-white">
                   EM ANDAMENTO
                 </h2>
@@ -242,7 +242,7 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
                 {emAndamento.length}
               </span>
             </div>
-            {renderOrderTable(emAndamento, 'bg-sky-100 text-[#00449e]')}
+            {renderOrderTable(emAndamento, 'bg-[#dfeadc] text-[#14452b]')}
           </section>
         </div>
 
@@ -261,15 +261,15 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
             />
           </div>
         ) : showNovoPedido && (
-          <aside className="lg:col-span-5 xl:col-span-4 bg-white/95 rounded-3xl border-2 border-[#7cc0ff] shadow-[0_16px_40px_-12px_rgba(0,82,180,0.24)] p-6">
-            <div className="flex items-center justify-between pb-4 mb-5 border-b border-sky-100">
-              <h2 className="text-lg font-black tracking-tight text-[#003377]">
+          <aside className="lg:col-span-5 xl:col-span-4 bg-white/95 rounded-3xl border-2 border-[#8eb09b] shadow-[0_16px_40px_-12px_rgba(20,69,43,0.24)] p-6">
+            <div className="flex items-center justify-between pb-4 mb-5 border-b border-[#dce8d8]">
+              <h2 className="text-lg font-black tracking-tight text-[#123d26]">
                 NOVO PEDIDO
               </h2>
               <button
                 type="button"
                 onClick={() => setShowNovoPedido(false)}
-                className="p-1.5 rounded-full text-[#0c4a96] hover:bg-sky-50 transition cursor-pointer"
+                className="p-1.5 rounded-full text-[#1b5e3a] hover:bg-[#eef4ec] transition cursor-pointer"
                 title="Fechar painel"
               >
                 <X className="w-4 h-4" />
@@ -279,33 +279,33 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
             <form onSubmit={handleAbrirPedido} className="space-y-4">
               {/* CLIENTE */}
               <div>
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-[#003377] mb-1.5 ml-1">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
                   CLIENTE
                 </label>
                 <div className="relative">
-                  <UserIcon className="w-4 h-4 text-[#0c4a96] absolute left-4 top-1/2 -translate-y-1/2" />
+                  <UserIcon className="w-4 h-4 text-[#1b5e3a] absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     ref={clienteInputRef}
                     type="text"
                     value={clienteNome}
                     onChange={(e) => setClienteNome(e.target.value)}
                     placeholder="Digite o nome do cliente..."
-                    className="w-full pl-11 pr-4 py-2.5 rounded-full border border-[#5aa3ec] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0059c9]/30 focus:border-[#0059c9]"
+                    className="w-full pl-11 pr-4 py-2.5 rounded-full border border-[#7a9a86] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a]"
                   />
                 </div>
               </div>
 
               {/* ATENDENTE */}
               <div>
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-[#003377] mb-1.5 ml-1">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
                   ATENDENTE
                 </label>
                 <div className="relative">
-                  <UserCheck className="w-4 h-4 text-[#0c4a96] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <UserCheck className="w-4 h-4 text-[#1b5e3a] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <select
                     value={atendenteId}
                     onChange={(e) => setAtendenteId(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-full border border-[#5aa3ec] text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0059c9]/30 focus:border-[#0059c9]"
+                    className="w-full pl-11 pr-4 py-2.5 rounded-full border border-[#7a9a86] text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a]"
                   >
                     <option value="">Selecione o atendente...</option>
                     {atendentes.map((a) => (
@@ -319,17 +319,17 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
 
               {/* COMENTÁRIO */}
               <div>
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-[#003377] mb-1.5 ml-1">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
                   COMENTÁRIO
                 </label>
                 <div className="relative">
-                  <MessageSquare className="w-4 h-4 text-[#0c4a96] absolute left-4 top-3" />
+                  <MessageSquare className="w-4 h-4 text-[#1b5e3a] absolute left-4 top-3" />
                   <textarea
                     rows={3}
                     value={comentario}
                     onChange={(e) => setComentario(e.target.value)}
                     placeholder="Observações do pedido (opcional)..."
-                    className="w-full pl-11 pr-4 py-2.5 rounded-2xl border border-[#5aa3ec] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0059c9]/30 focus:border-[#0059c9] resize-none"
+                    className="w-full pl-11 pr-4 py-2.5 rounded-2xl border border-[#7a9a86] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a] resize-none"
                   />
                 </div>
               </div>
@@ -343,7 +343,7 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
               <button
                 type="submit"
                 disabled={creating}
-                className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#004ca8] via-[#005ec9] to-[#0070e0] hover:from-[#003d8a] hover:to-[#005ec9] text-white font-extrabold text-sm tracking-wider shadow-lg shadow-blue-800/25 transition disabled:opacity-60 cursor-pointer"
+                className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#123d26] via-[#1b5e3a] to-[#267349] hover:from-[#0d2e1c] hover:to-[#1b5e3a] text-white font-extrabold text-sm tracking-wider shadow-lg shadow-emerald-950/25 transition disabled:opacity-60 cursor-pointer"
               >
                 {creating ? 'ABRINDO...' : 'ABRIR PEDIDO'}
               </button>

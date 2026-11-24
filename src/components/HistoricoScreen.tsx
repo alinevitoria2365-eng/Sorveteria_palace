@@ -31,8 +31,8 @@ export const HistoricoScreen: React.FC<HistoricoScreenProps> = ({ onOpenPedido }
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-black text-[#003377]">HISTÓRICO DE VENDAS</h1>
-        <div className="flex items-center gap-1.5 bg-white/95 p-1.5 rounded-full border-2 border-[#8ec8ff] shadow-xs">
+        <h1 className="text-2xl sm:text-3xl font-black text-[#123d26]">HISTÓRICO DE VENDAS</h1>
+        <div className="flex items-center gap-1.5 bg-white/95 p-1.5 rounded-full border-2 border-[#9dbb9f] shadow-xs">
           {(
             [
               ['FINALIZADO', 'Finalizados'],
@@ -46,8 +46,8 @@ export const HistoricoScreen: React.FC<HistoricoScreenProps> = ({ onOpenPedido }
               onClick={() => setFilter(key)}
               className={`px-4 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${
                 filter === key
-                  ? 'bg-gradient-to-r from-[#004ca8] to-[#0066cc] text-white shadow-xs'
-                  : 'text-[#0c4a96] hover:bg-sky-50'
+                  ? 'bg-gradient-to-r from-[#123d26] to-[#1b5e3a] text-white shadow-xs'
+                  : 'text-[#1b5e3a] hover:bg-[#eef4ec]'
               }`}
             >
               {label}
@@ -58,18 +58,18 @@ export const HistoricoScreen: React.FC<HistoricoScreenProps> = ({ onOpenPedido }
 
       {resumo && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white/95 rounded-3xl border-2 border-[#8ec8ff] p-5 shadow-[0_12px_28px_-12px_rgba(0,82,180,0.16)]">
-            <div className="flex items-center gap-2 text-xs font-extrabold uppercase text-[#0c4a96]">
-              <Receipt className="w-4 h-4 text-[#0059c9]" />
+          <div className="bg-white/95 rounded-3xl border-2 border-[#9dbb9f] p-5 shadow-[0_12px_28px_-12px_rgba(20,69,43,0.16)]">
+            <div className="flex items-center gap-2 text-xs font-extrabold uppercase text-[#1b5e3a]">
+              <Receipt className="w-4 h-4 text-[#1b5e3a]" />
               Vendas Finalizadas
             </div>
-            <div className="text-2xl font-black text-[#003377] mt-2">
+            <div className="text-2xl font-black text-[#123d26] mt-2">
               {resumo.quantidadeFinalizados}
             </div>
           </div>
 
-          <div className="bg-white/95 rounded-3xl border-2 border-[#8ec8ff] p-5 shadow-[0_12px_28px_-12px_rgba(0,82,180,0.16)]">
-            <div className="flex items-center gap-2 text-xs font-extrabold uppercase text-[#0c4a96]">
+          <div className="bg-white/95 rounded-3xl border-2 border-[#9dbb9f] p-5 shadow-[0_12px_28px_-12px_rgba(20,69,43,0.16)]">
+            <div className="flex items-center gap-2 text-xs font-extrabold uppercase text-[#1b5e3a]">
               <TrendingUp className="w-4 h-4 text-emerald-600" />
               Total Vendido
             </div>
@@ -79,18 +79,18 @@ export const HistoricoScreen: React.FC<HistoricoScreenProps> = ({ onOpenPedido }
           </div>
 
           {resumo.porFormaPagamento.map((pg) => (
-            <div key={pg.formaPagamento} className="bg-white/95 rounded-3xl border-2 border-[#8ec8ff] p-5 shadow-[0_12px_28px_-12px_rgba(0,82,180,0.16)]">
-              <div className="text-xs font-extrabold uppercase text-[#0c4a96]">{pg.formaPagamento}</div>
-              <div className="text-xl font-black text-[#003377] mt-2">
+            <div key={pg.formaPagamento} className="bg-white/95 rounded-3xl border-2 border-[#9dbb9f] p-5 shadow-[0_12px_28px_-12px_rgba(20,69,43,0.16)]">
+              <div className="text-xs font-extrabold uppercase text-[#1b5e3a]">{pg.formaPagamento}</div>
+              <div className="text-xl font-black text-[#123d26] mt-2">
                 {formatCurrency(pg.total)}
               </div>
-              <div className="text-xs text-[#0c4a96]/70 mt-0.5">{pg.quantidade} venda(s)</div>
+              <div className="text-xs text-[#1b5e3a]/70 mt-0.5">{pg.quantidade} venda(s)</div>
             </div>
           ))}
         </div>
       )}
 
-      <div className="bg-white/95 rounded-3xl border-2 border-[#8ec8ff] shadow-[0_12px_32px_-12px_rgba(0,82,180,0.18)] overflow-hidden">
+      <div className="bg-white/95 rounded-3xl border-2 border-[#9dbb9f] shadow-[0_12px_32px_-12px_rgba(20,69,43,0.18)] overflow-hidden">
         {loading ? (
           <div className="py-12 text-center text-sm text-slate-400">Carregando histórico...</div>
         ) : pedidos.length === 0 ? (
@@ -116,7 +116,7 @@ export const HistoricoScreen: React.FC<HistoricoScreenProps> = ({ onOpenPedido }
                   <tr
                     key={p.id}
                     onClick={() => onOpenPedido(p.id)}
-                    className="hover:bg-sky-50/70 cursor-pointer transition"
+                    className="hover:bg-[#eef4ec]/70 cursor-pointer transition"
                   >
                     <td className="py-3.5 px-4 font-bold text-slate-900">#{p.id}</td>
                     <td className="py-3.5 px-4 text-slate-600">
