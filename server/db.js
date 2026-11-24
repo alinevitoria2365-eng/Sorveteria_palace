@@ -286,6 +286,7 @@ function seedInitialData() {
     ['200', 'Adicional cobertura 2', 2.00],
     ['12', 'Banana split', 25.00],
     ['71', 'Morango split', 26.00],
+    ['333', 'Picolé Açaí/Ninho', 2.50],
     ['-', 'Casquinha/Cestinha/Cascão/Palito/canudo biju recheado (unidade)', 1.00],
   ];
 

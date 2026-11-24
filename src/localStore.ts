@@ -10,7 +10,7 @@ import type {
   User,
 } from './types';
 
-const STORE_KEY = 'sorveteria_pdv_static_store_v7';
+const STORE_KEY = 'sorveteria_pdv_static_store_v8';
 
 interface StoreState {
   nextIds: {
@@ -67,6 +67,7 @@ function createInitialState(): StoreState {
     { id: 25, codigo: '300', nome: 'Caldo', preco: 14.0, ativo: 1 },
     { id: 26, codigo: '100', nome: 'Adicional cobertura 1', preco: 1.0, ativo: 1 },
     { id: 27, codigo: '200', nome: 'Adicional cobertura 2', preco: 2.0, ativo: 1 },
+    { id: 35, codigo: '333', nome: 'Picolé Açaí/Ninho', preco: 2.5, ativo: 1 },
     { id: 28, codigo: '-', nome: 'Caixa 5 litros - trufado/recheado', preco: 120.0, ativo: 1 },
     { id: 29, codigo: '-', nome: 'Caixa 10 litros', preco: 140.0, ativo: 1 },
     { id: 30, codigo: '-', nome: 'Milk shake - taça', preco: 16.0, ativo: 1 },
