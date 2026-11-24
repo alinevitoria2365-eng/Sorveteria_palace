@@ -252,6 +252,17 @@ function seedInitialData() {
     }
   }
 
+  // Mover Refrigerante Lata de 12 para 13 se necessário para liberar código 12 para Banana split
+  const refri12 = db.prepare("SELECT id, nome FROM produtos WHERE codigo = '12' AND ativo = 1").get();
+  if (refri12 && refri12.nome === 'Refrigerante Lata') {
+    const has13 = db.prepare("SELECT id FROM produtos WHERE codigo = '13' AND ativo = 1").get();
+    if (!has13) {
+      db.prepare("UPDATE produtos SET codigo = '13' WHERE id = ?").run(refri12.id);
+    } else {
+      db.prepare("UPDATE produtos SET ativo = 0 WHERE id = ?").run(refri12.id);
+    }
+  }
+
   // Novos itens fixos
   const novosItensFixos = [
     ['62', 'Cestinha gourmet', 25.00],
@@ -273,6 +284,9 @@ function seedInitialData() {
     ['-', 'Adicional confete', 3.00],
     ['100', 'Adicional cobertura 1', 1.00],
     ['200', 'Adicional cobertura 2', 2.00],
+    ['12', 'Banana split', 25.00],
+    ['71', 'Morango split', 26.00],
+    ['-', 'Casquinha/Cestinha/Cascão/Palito/canudo biju recheado (unidade)', 1.00],
   ];
 
   for (const [cod, nom, prc] of novosItensFixos) {

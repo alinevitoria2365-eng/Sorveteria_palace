@@ -10,7 +10,7 @@ import type {
   User,
 } from './types';
 
-const STORE_KEY = 'sorveteria_pdv_static_store_v4';
+const STORE_KEY = 'sorveteria_pdv_static_store_v5';
 
 interface StoreState {
   nextIds: {
@@ -39,8 +39,9 @@ const DEFAULT_USERS: Array<User & { senha: string }> = [
 function createInitialState(): StoreState {
   const produtos: Produto[] = [
     { id: 1, codigo: '01', nome: 'Self service', preco: 0, ativo: 1 },
-    { id: 2, codigo: '12', nome: 'Refrigerante Lata', preco: 6.5, ativo: 1 },
-    { id: 3, codigo: '14', nome: 'Café gelado', preco: 15.0, ativo: 1 },
+    { id: 2, codigo: '12', nome: 'Banana split', preco: 25.0, ativo: 1 },
+    { id: 3, codigo: '13', nome: 'Refrigerante Lata', preco: 6.5, ativo: 1 },
+    { id: 4, codigo: '14', nome: 'Café gelado', preco: 15.0, ativo: 1 },
     { id: 4, codigo: '15', nome: 'Capuccino', preco: 18.0, ativo: 1 },
     { id: 5, codigo: '16', nome: 'Cascão 1 bola', preco: 9.0, ativo: 1 },
     { id: 6, codigo: '17', nome: 'Cascão 2 bolas', preco: 14.0, ativo: 1 },
@@ -58,8 +59,9 @@ function createInitialState(): StoreState {
     { id: 18, codigo: '54', nome: 'Mini cobertura', preco: 15.0, ativo: 1 },
     { id: 19, codigo: '60', nome: 'Casquinha 1 bola', preco: 11.5, ativo: 1 },
     { id: 20, codigo: '61', nome: 'Casquinha pacote', preco: 5.0, ativo: 1 },
-    { id: 21, codigo: '62', nome: 'Cestinha gourmet', preco: 25.0, ativo: 1 },
-    { id: 22, codigo: '90', nome: 'Água c/ gás', preco: 4.0, ativo: 1 },
+    { id: 22, codigo: '62', nome: 'Cestinha gourmet', preco: 25.0, ativo: 1 },
+    { id: 23, codigo: '71', nome: 'Morango split', preco: 26.0, ativo: 1 },
+    { id: 24, codigo: '90', nome: 'Água c/ gás', preco: 4.0, ativo: 1 },
     { id: 23, codigo: '91', nome: 'Água Mineral 500ml', preco: 3.5, ativo: 1 },
     { id: 24, codigo: '92', nome: 'Petit Gateau com Sorvete', preco: 24.0, ativo: 1 },
     { id: 25, codigo: '300', nome: 'Caldo', preco: 14.0, ativo: 1 },
@@ -70,6 +72,7 @@ function createInitialState(): StoreState {
     { id: 30, codigo: '-', nome: 'Milk shake - taça', preco: 16.0, ativo: 1 },
     { id: 31, codigo: '-', nome: 'Adicional cereja / paçoca', preco: 1.0, ativo: 1 },
     { id: 32, codigo: '-', nome: 'Adicional confete', preco: 3.0, ativo: 1 },
+    { id: 33, codigo: '-', nome: 'Casquinha/Cestinha/Cascão/Palito/canudo biju recheado (unidade)', preco: 1.0, ativo: 1 },
   ];
 
   return {
