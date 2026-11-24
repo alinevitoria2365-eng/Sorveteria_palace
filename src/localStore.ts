@@ -273,16 +273,30 @@ export const localStore = {
   },
 
   createPedido(data: {
-    clienteId: number;
+    clienteId?: number;
+    clienteNome?: string;
     atendenteId: number;
     comentario: string;
     status?: 'PENDENTE' | 'EM_ANDAMENTO';
   }): Pedido {
     const state = loadState();
+    let clienteId = data.clienteId ?? 1;
+    if (data.clienteNome !== undefined) {
+      const nome = data.clienteNome.trim() || 'Cliente Avulso';
+      const existing = state.clientes.find(
+        (c) => c.ativo === 1 && c.nome.toLowerCase() === nome.toLowerCase()
+      );
+      if (existing) {
+        clienteId = existing.id;
+      } else {
+        clienteId = state.nextIds.cliente++;
+        state.clientes.push({ id: clienteId, nome, telefone: '', ativo: 1 });
+      }
+    }
     const id = state.nextIds.pedido++;
     state.pedidos.push({
       id,
-      clienteId: data.clienteId,
+      clienteId,
       atendenteId: data.atendenteId,
       status: data.status === 'PENDENTE' ? 'PENDENTE' : 'EM_ANDAMENTO',
       dataHoraCriacao: new Date().toISOString(),
@@ -302,6 +316,7 @@ export const localStore = {
     id: number,
     data: Partial<{
       clienteId: number;
+      clienteNome: string;
       atendenteId: number;
       comentario: string;
       status: 'PENDENTE' | 'EM_ANDAMENTO';
@@ -313,7 +328,21 @@ export const localStore = {
     if (p.status === 'FINALIZADO' || p.status === 'CANCELADO') {
       throw new Error('Não é possível alterar um pedido fechado/cancelado.');
     }
-    if (data.clienteId !== undefined) p.clienteId = data.clienteId;
+    if (data.clienteNome !== undefined) {
+      const nome = data.clienteNome.trim() || 'Cliente Avulso';
+      const existing = state.clientes.find(
+        (c) => c.ativo === 1 && c.nome.toLowerCase() === nome.toLowerCase()
+      );
+      if (existing) {
+        p.clienteId = existing.id;
+      } else {
+        const newId = state.nextIds.cliente++;
+        state.clientes.push({ id: newId, nome, telefone: '', ativo: 1 });
+        p.clienteId = newId;
+      }
+    } else if (data.clienteId !== undefined) {
+      p.clienteId = data.clienteId;
+    }
     if (data.atendenteId !== undefined) p.atendenteId = data.atendenteId;
     if (data.comentario !== undefined) p.comentario = data.comentario;
     if (data.status !== undefined) p.status = data.status;

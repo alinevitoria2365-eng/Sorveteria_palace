@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Package, Users, UserCheck, Plus, AlertCircle, Check } from 'lucide-react';
+import { Package, UserCheck, Plus, AlertCircle, Check } from 'lucide-react';
 import { api, formatCurrency } from '../api';
-import type { Atendente, Cliente, Produto } from '../types';
+import type { Atendente, Produto } from '../types';
 
 export const CadastrosScreen: React.FC = () => {
-  const [tab, setTab] = useState<'produtos' | 'clientes' | 'atendentes'>('produtos');
+  const [tab, setTab] = useState<'produtos' | 'atendentes'>('produtos');
   const [produtos, setProdutos] = useState<Produto[]>([]);
-  const [clientes, setClientes] = useState<Cliente[]>([]);
   const [atendentes, setAtendentes] = useState<Atendente[]>([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -16,22 +15,16 @@ export const CadastrosScreen: React.FC = () => {
   const [nomeProd, setNomeProd] = useState('');
   const [precoStr, setPrecoStr] = useState('');
 
-  // Form Cliente
-  const [nomeCliente, setNomeCliente] = useState('');
-  const [telefoneCliente, setTelefoneCliente] = useState('');
-
   // Form Atendente
   const [nomeAtendente, setNomeAtendente] = useState('');
 
   async function loadAll() {
     try {
-      const [p, c, a] = await Promise.all([
+      const [p, a] = await Promise.all([
         api.getProdutos('', true),
-        api.getClientes(),
         api.getAtendentes(),
       ]);
       setProdutos(p);
-      setClientes(c);
       setAtendentes(a);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar cadastros.');
@@ -81,24 +74,6 @@ export const CadastrosScreen: React.FC = () => {
     }
   }
 
-  async function handleCreateCliente(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
-    if (!nomeCliente.trim()) {
-      setError('Informe o nome do cliente.');
-      return;
-    }
-    try {
-      const created = await api.createCliente(nomeCliente.trim(), telefoneCliente.trim());
-      setClientes((prev) => [...prev, created]);
-      setNomeCliente('');
-      setTelefoneCliente('');
-      flashSuccess('Cliente cadastrado!');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao cadastrar cliente.');
-    }
-  }
-
   async function handleCreateAtendente(e: React.FormEvent) {
     e.preventDefault();
     setError('');
@@ -132,18 +107,6 @@ export const CadastrosScreen: React.FC = () => {
           >
             <Package className="w-4 h-4" />
             Produtos
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab('clientes')}
-            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer ${
-              tab === 'clientes'
-                ? 'bg-gradient-to-r from-[#004ca8] to-[#0066cc] text-white shadow-xs'
-                : 'text-[#0c4a96] hover:bg-sky-50'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            Clientes
           </button>
           <button
             type="button"
@@ -258,67 +221,6 @@ export const CadastrosScreen: React.FC = () => {
                         {p.ativo ? 'Ativo' : 'Inativo'}
                       </button>
                     </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {tab === 'clientes' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <form
-            onSubmit={handleCreateCliente}
-            className="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4"
-          >
-            <h2 className="text-sm font-extrabold uppercase text-slate-700">Novo Cliente</h2>
-            <div>
-              <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Nome</label>
-              <input
-                type="text"
-                value={nomeCliente}
-                onChange={(e) => setNomeCliente(e.target.value)}
-                placeholder="Nome do cliente"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase text-slate-500 mb-1">
-                Telefone
-              </label>
-              <input
-                type="text"
-                value={telefoneCliente}
-                onChange={(e) => setTelefoneCliente(e.target.value)}
-                placeholder="(11) 99999-9999"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full py-3 rounded-full bg-gradient-to-r from-[#004ca8] via-[#005ec9] to-[#0070e0] hover:from-[#003d8a] hover:to-[#005ec9] text-white font-extrabold text-sm inline-flex items-center justify-center gap-2 shadow-md shadow-blue-800/20 cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              Cadastrar Cliente
-            </button>
-          </form>
-
-          <div className="lg:col-span-8 bg-white/95 rounded-3xl border-2 border-[#8ec8ff] shadow-[0_12px_32px_-12px_rgba(0,82,180,0.18)] overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-xs font-bold uppercase text-slate-500">
-                  <th className="py-3 px-4">ID</th>
-                  <th className="py-3 px-4">NOME</th>
-                  <th className="py-3 px-4">TELEFONE</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {clientes.map((c) => (
-                  <tr key={c.id}>
-                    <td className="py-3 px-4 font-bold text-slate-500">#{c.id}</td>
-                    <td className="py-3 px-4 font-semibold text-slate-900">{c.nome}</td>
-                    <td className="py-3 px-4 text-slate-600">{c.telefone || '-'}</td>
                   </tr>
                 ))}
               </tbody>

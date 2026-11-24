@@ -126,7 +126,8 @@ export const api = {
   getPedido: async (id: number) =>
     isStaticHost() ? localStore.getPedido(id) : request<Pedido>(`/api/pedidos/${id}`),
   createPedido: async (data: {
-    clienteId: number;
+    clienteId?: number;
+    clienteNome?: string;
     atendenteId: number;
     comentario: string;
     status?: 'PENDENTE' | 'EM_ANDAMENTO';
@@ -141,6 +142,7 @@ export const api = {
     id: number,
     data: Partial<{
       clienteId: number;
+      clienteNome: string;
       atendenteId: number;
       comentario: string;
       status: 'PENDENTE' | 'EM_ANDAMENTO';

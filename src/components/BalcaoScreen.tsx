@@ -3,15 +3,14 @@ import {
   Plus,
   Clock,
   CheckCircle2,
-  Search,
-  UserPlus,
+  User as UserIcon,
   MessageSquare,
   UserCheck,
   X,
   RefreshCw,
 } from 'lucide-react';
 import { api, formatCurrency, formatTime, STATUS_LABELS } from '../api';
-import type { Atendente, Cliente, Pedido } from '../types';
+import type { Atendente, Pedido } from '../types';
 import { PedidoScreen } from './PedidoScreen';
 
 interface BalcaoScreenProps {
@@ -20,7 +19,6 @@ interface BalcaoScreenProps {
 
 export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
-  const [clientes, setClientes] = useState<Cliente[]>([]);
   const [atendentes, setAtendentes] = useState<Atendente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,9 +26,7 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
   // Painel direito: Novo Pedido ou Pedido Aberto no mesmo lugar
   const [showNovoPedido, setShowNovoPedido] = useState(true);
   const [activePedidoId, setActivePedidoId] = useState<number | null>(null);
-  const [clienteSearch, setClienteSearch] = useState('');
-  const [selectedClienteId, setSelectedClienteId] = useState<number | ''>('');
-  const [showClienteDropdown, setShowClienteDropdown] = useState(false);
+  const [clienteNome, setClienteNome] = useState('Cliente Avulso');
   const [atendenteId, setAtendenteId] = useState<number | ''>('');
   const [comentario, setComentario] = useState('');
   const [creating, setCreating] = useState(false);
@@ -42,19 +38,13 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
     setLoading(true);
     setError('');
     try {
-      const [pedidosData, clientesData, atendentesData] = await Promise.all([
+      const [pedidosData, atendentesData] = await Promise.all([
         api.getPedidos('PENDENTE,EM_ANDAMENTO'),
-        api.getClientes(),
         api.getAtendentes(),
       ]);
       setPedidos(pedidosData);
-      setClientes(clientesData);
       setAtendentes(atendentesData);
 
-      if (clientesData.length > 0 && selectedClienteId === '') {
-        setSelectedClienteId(clientesData[0].id);
-        setClienteSearch(clientesData[0].nome);
-      }
       if (atendentesData.length > 0 && atendenteId === '') {
         setAtendenteId(atendentesData[0].id);
       }
@@ -73,14 +63,6 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
   const pendentes = useMemo(() => pedidos.filter((p) => p.status === 'PENDENTE'), [pedidos]);
   const emAndamento = useMemo(() => pedidos.filter((p) => p.status === 'EM_ANDAMENTO'), [pedidos]);
 
-  const filteredClientes = useMemo(() => {
-    const q = clienteSearch.trim().toLowerCase();
-    if (!q) return clientes;
-    return clientes.filter(
-      (c) => c.nome.toLowerCase().includes(q) || c.telefone.toLowerCase().includes(q)
-    );
-  }, [clientes, clienteSearch]);
-
   function handleOpenNewOrderPanel() {
     setActivePedidoId(null);
     setShowNovoPedido(true);
@@ -90,28 +72,10 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
     }, 50);
   }
 
-  async function handleQuickAddCliente() {
-    const nome = clienteSearch.trim();
-    if (!nome) return;
-    try {
-      const created = await api.createCliente(nome);
-      setClientes((prev) => [...prev, created]);
-      setSelectedClienteId(created.id);
-      setClienteSearch(created.nome);
-      setShowClienteDropdown(false);
-    } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'Erro ao cadastrar cliente.');
-    }
-  }
-
   async function handleAbrirPedido(e: React.FormEvent) {
     e.preventDefault();
     setFormError('');
 
-    if (!selectedClienteId) {
-      setFormError('Selecione um cliente.');
-      return;
-    }
     if (!atendenteId) {
       setFormError('Selecione um atendente.');
       return;
@@ -120,10 +84,11 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
     setCreating(true);
     try {
       const created = await api.createPedido({
-        clienteId: Number(selectedClienteId),
+        clienteNome: clienteNome.trim() || 'Cliente Avulso',
         atendenteId: Number(atendenteId),
         comentario: comentario.trim(),
       });
+      setClienteNome('Cliente Avulso');
       setComentario('');
       setActivePedidoId(created.id);
       setShowNovoPedido(true);
@@ -313,62 +278,21 @@ export const BalcaoScreen: React.FC<BalcaoScreenProps> = () => {
 
             <form onSubmit={handleAbrirPedido} className="space-y-4">
               {/* CLIENTE */}
-              <div className="relative">
+              <div>
                 <label className="block text-xs font-extrabold uppercase tracking-wider text-[#003377] mb-1.5 ml-1">
                   CLIENTE
                 </label>
                 <div className="relative">
-                  <Search className="w-4 h-4 text-[#0c4a96] absolute left-4 top-1/2 -translate-y-1/2" />
+                  <UserIcon className="w-4 h-4 text-[#0c4a96] absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     ref={clienteInputRef}
                     type="text"
-                    value={clienteSearch}
-                    onFocus={() => setShowClienteDropdown(true)}
-                    onChange={(e) => {
-                      setClienteSearch(e.target.value);
-                      setSelectedClienteId('');
-                      setShowClienteDropdown(true);
-                    }}
-                    placeholder="Selecionar ou pesquisar cliente..."
+                    value={clienteNome}
+                    onChange={(e) => setClienteNome(e.target.value)}
+                    placeholder="Digite o nome do cliente..."
                     className="w-full pl-11 pr-4 py-2.5 rounded-full border border-[#5aa3ec] text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0059c9]/30 focus:border-[#0059c9]"
                   />
                 </div>
-
-                {showClienteDropdown && (
-                  <div className="absolute z-20 mt-1.5 w-full bg-white rounded-xl border border-slate-200 shadow-lg max-h-52 overflow-y-auto">
-                    {filteredClientes.map((c) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedClienteId(c.id);
-                          setClienteSearch(c.nome);
-                          setShowClienteDropdown(false);
-                        }}
-                        className={`w-full text-left px-3.5 py-2.5 text-sm hover:bg-sky-50 flex items-center justify-between cursor-pointer ${
-                          selectedClienteId === c.id ? 'bg-sky-50 font-semibold text-sky-800' : 'text-slate-700'
-                        }`}
-                      >
-                        <span>{c.nome}</span>
-                        {c.telefone && <span className="text-xs text-slate-400">{c.telefone}</span>}
-                      </button>
-                    ))}
-                    {clienteSearch.trim() &&
-                      !clientes.some((c) => c.nome.toLowerCase() === clienteSearch.trim().toLowerCase()) && (
-                        <button
-                          type="button"
-                          onClick={handleQuickAddCliente}
-                          className="w-full text-left px-3.5 py-2.5 text-sm text-sky-700 font-semibold bg-sky-50/60 hover:bg-sky-100 flex items-center gap-2 border-t border-slate-100 cursor-pointer"
-                        >
-                          <UserPlus className="w-4 h-4" />
-                          Cadastrar &ldquo;{clienteSearch.trim()}&rdquo;
-                        </button>
-                      )}
-                    {filteredClientes.length === 0 && !clienteSearch.trim() && (
-                      <div className="px-3.5 py-3 text-xs text-slate-400">Nenhum cliente encontrado.</div>
-                    )}
-                  </div>
-                )}
               </div>
 
               {/* ATENDENTE */}

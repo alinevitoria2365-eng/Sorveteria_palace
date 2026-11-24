@@ -217,14 +217,25 @@ app.get('/api/pedidos/:id', requireAuth, (req, res) => {
   res.json(pedido);
 });
 
+function resolveClienteId(clienteIdInput, clienteNomeInput) {
+  if (clienteNomeInput !== undefined) {
+    const nome = String(clienteNomeInput || '').trim() || 'Cliente Avulso';
+    const existing = db.prepare('SELECT id FROM clientes WHERE LOWER(nome) = LOWER(?) AND ativo = 1').get(nome);
+    if (existing) return existing.id;
+    const inserted = db.prepare('INSERT INTO clientes (nome, telefone, ativo) VALUES (?, ?, 1)').run(nome, '');
+    return Number(inserted.lastInsertRowid);
+  }
+  return Number(clienteIdInput);
+}
+
 app.post('/api/pedidos', requireAuth, (req, res) => {
-  const clienteId = Number(req.body?.clienteId);
+  const clienteId = resolveClienteId(req.body?.clienteId, req.body?.clienteNome);
   const atendenteId = Number(req.body?.atendenteId);
   const comentario = String(req.body?.comentario || '').trim();
   const requestedStatus = req.body?.status === 'PENDENTE' ? 'PENDENTE' : 'EM_ANDAMENTO';
 
   if (!Number.isInteger(clienteId) || clienteId <= 0) {
-    return res.status(400).json({ error: 'Selecione um cliente válido.' });
+    return res.status(400).json({ error: 'Informe um cliente válido.' });
   }
   if (!Number.isInteger(atendenteId) || atendenteId <= 0) {
     return res.status(400).json({ error: 'Selecione um atendente.' });
@@ -257,7 +268,12 @@ app.put('/api/pedidos/:id', requireAuth, (req, res) => {
     return res.status(400).json({ error: `Não é possível alterar um pedido ${pedido.status.toLowerCase()}.` });
   }
 
-  const clienteId = req.body?.clienteId !== undefined ? Number(req.body.clienteId) : pedido.clienteId;
+  const clienteId =
+    req.body?.clienteNome !== undefined
+      ? resolveClienteId(undefined, req.body.clienteNome)
+      : req.body?.clienteId !== undefined
+      ? Number(req.body.clienteId)
+      : pedido.clienteId;
   const atendenteId = req.body?.atendenteId !== undefined ? Number(req.body.atendenteId) : pedido.atendenteId;
   const comentario = req.body?.comentario !== undefined ? String(req.body.comentario).trim() : pedido.comentario;
   const status =

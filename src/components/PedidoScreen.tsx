@@ -12,7 +12,7 @@ import {
   Settings,
 } from 'lucide-react';
 import { api, formatCurrency, formatDateTime, STATUS_LABELS } from '../api';
-import type { Atendente, Cliente, ItemPedido, Pedido, Produto } from '../types';
+import type { Atendente, ItemPedido, Pedido, Produto } from '../types';
 import { FecharPedidoModal } from './FecharPedidoModal';
 
 interface PedidoScreenProps {
@@ -56,9 +56,8 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
 
   // Edição do pedido
   const [showEditModal, setShowEditModal] = useState(false);
-  const [clientes, setClientes] = useState<Cliente[]>([]);
   const [atendentes, setAtendentes] = useState<Atendente[]>([]);
-  const [editClienteId, setEditClienteId] = useState<number>(0);
+  const [editClienteNome, setEditClienteNome] = useState('');
   const [editAtendenteId, setEditAtendenteId] = useState<number>(0);
   const [editComentario, setEditComentario] = useState('');
   const [editStatus, setEditStatus] = useState<'PENDENTE' | 'EM_ANDAMENTO'>('EM_ANDAMENTO');
@@ -195,15 +194,14 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
 
   async function openEditModal() {
     if (!pedido || !isEditable) return;
-    setEditClienteId(pedido.clienteId);
+    setEditClienteNome(pedido.clienteNome || 'Cliente Avulso');
     setEditAtendenteId(pedido.atendenteId);
     setEditComentario(pedido.comentario || '');
     setEditStatus(pedido.status === 'PENDENTE' ? 'PENDENTE' : 'EM_ANDAMENTO');
     setShowEditModal(true);
 
     try {
-      const [c, a] = await Promise.all([api.getClientes(), api.getAtendentes()]);
-      setClientes(c);
+      const a = await api.getAtendentes();
       setAtendentes(a);
     } catch {
       // ignore
@@ -216,7 +214,7 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
     setSavingEdit(true);
     try {
       const updated = await api.updatePedido(pedido.id, {
-        clienteId: editClienteId,
+        clienteNome: editClienteNome.trim() || 'Cliente Avulso',
         atendenteId: editAtendenteId,
         comentario: editComentario,
         status: editStatus,
@@ -638,17 +636,13 @@ export const PedidoScreen: React.FC<PedidoScreenProps> = ({
                 <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
                   Cliente
                 </label>
-                <select
-                  value={editClienteId}
-                  onChange={(e) => setEditClienteId(Number(e.target.value))}
+                <input
+                  type="text"
+                  value={editClienteNome}
+                  onChange={(e) => setEditClienteNome(e.target.value)}
+                  placeholder="Digite o nome do cliente..."
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm"
-                >
-                  {clientes.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nome}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
