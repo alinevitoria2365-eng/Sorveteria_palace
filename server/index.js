@@ -1,14 +1,13 @@
+import 'dotenv/config';
 import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, initDatabase, recalcPedidoTotals } from './db.js';
+import { getClient, initDatabase, query, recalcPedidoTotals } from './db.js';
 import { createSessionToken, requireAuth, verifyPassword } from './auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3001;
-
-initDatabase();
 
 const app = express();
 app.use(express.json());
@@ -16,14 +15,16 @@ app.use(express.json());
 const PAYMENT_METHODS = ['Dinheiro', 'Pix', 'Cartão de débito', 'Cartão de crédito'];
 
 // --- AUTH ---
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   const { usuario, senha } = req.body || {};
   if (!usuario || !senha) {
     return res.status(400).json({ error: 'Informe usuário e senha.' });
   }
-  const user = db
-    .prepare('SELECT id, nome, usuario, senhaHash, ativo FROM usuarios WHERE usuario = ?')
-    .get(String(usuario).trim());
+  const { rows } = await query(
+    'SELECT id, nome, usuario, "senhaHash", ativo FROM usuarios WHERE usuario = $1',
+    [String(usuario).trim()]
+  );
+  const user = rows[0];
 
   if (!user || !user.ativo || !verifyPassword(String(senha), user.senhaHash)) {
     return res.status(401).json({ error: 'Usuário ou senha inválidos.' });
@@ -41,71 +42,78 @@ app.get('/api/auth/me', requireAuth, (req, res) => {
 });
 
 // --- CLIENTES ---
-app.get('/api/clientes', requireAuth, (req, res) => {
+app.get('/api/clientes', requireAuth, async (req, res) => {
   const includeInactive = req.query.includeInactive === '1';
-  const rows = includeInactive
-    ? db.prepare('SELECT id, nome, telefone, ativo FROM clientes ORDER BY id ASC').all()
-    : db.prepare('SELECT id, nome, telefone, ativo FROM clientes WHERE ativo = 1 ORDER BY id ASC').all();
+  const { rows } = includeInactive
+    ? await query('SELECT id, nome, telefone, ativo FROM clientes ORDER BY id ASC')
+    : await query('SELECT id, nome, telefone, ativo FROM clientes WHERE ativo = 1 ORDER BY id ASC');
   res.json(rows);
 });
 
-app.post('/api/clientes', requireAuth, (req, res) => {
+app.post('/api/clientes', requireAuth, async (req, res) => {
   const nome = String(req.body?.nome || '').trim();
   const telefone = String(req.body?.telefone || '').trim();
   if (!nome) {
     return res.status(400).json({ error: 'Nome do cliente é obrigatório.' });
   }
-  const result = db.prepare('INSERT INTO clientes (nome, telefone, ativo) VALUES (?, ?, 1)').run(nome, telefone);
-  const created = db.prepare('SELECT id, nome, telefone, ativo FROM clientes WHERE id = ?').get(result.lastInsertRowid);
-  res.status(201).json(created);
+  const { rows } = await query(
+    'INSERT INTO clientes (nome, telefone, ativo) VALUES ($1, $2, 1) RETURNING id, nome, telefone, ativo',
+    [nome, telefone]
+  );
+  res.status(201).json(rows[0]);
 });
 
 // --- ATENDENTES ---
-app.get('/api/atendentes', requireAuth, (req, res) => {
+app.get('/api/atendentes', requireAuth, async (req, res) => {
   const includeInactive = req.query.includeInactive === '1';
-  const rows = includeInactive
-    ? db.prepare('SELECT id, nome, ativo FROM atendentes ORDER BY nome ASC').all()
-    : db.prepare('SELECT id, nome, ativo FROM atendentes WHERE ativo = 1 ORDER BY nome ASC').all();
+  const { rows } = includeInactive
+    ? await query('SELECT id, nome, ativo FROM atendentes ORDER BY nome ASC')
+    : await query('SELECT id, nome, ativo FROM atendentes WHERE ativo = 1 ORDER BY nome ASC');
   res.json(rows);
 });
 
-app.post('/api/atendentes', requireAuth, (req, res) => {
+app.post('/api/atendentes', requireAuth, async (req, res) => {
   const nome = String(req.body?.nome || '').trim();
   if (!nome) {
     return res.status(400).json({ error: 'Nome do atendente é obrigatório.' });
   }
-  const result = db.prepare('INSERT INTO atendentes (nome, ativo) VALUES (?, 1)').run(nome);
-  const created = db.prepare('SELECT id, nome, ativo FROM atendentes WHERE id = ?').get(result.lastInsertRowid);
-  res.status(201).json(created);
+  const { rows } = await query(
+    'INSERT INTO atendentes (nome, ativo) VALUES ($1, 1) RETURNING id, nome, ativo',
+    [nome]
+  );
+  res.status(201).json(rows[0]);
 });
 
 // --- PRODUTOS ---
-app.get('/api/produtos', requireAuth, (req, res) => {
+app.get('/api/produtos', requireAuth, async (req, res) => {
   const q = String(req.query.q || '').trim();
   const includeInactive = req.query.includeInactive === '1';
 
   if (q) {
     const like = `%${q}%`;
-    const rows = db
-      .prepare(
-        `SELECT id, codigo, nome, preco, ativo
-         FROM produtos
-         WHERE ativo = 1 AND (codigo = ? OR codigo LIKE ? OR nome LIKE ?)
-         ORDER BY CASE WHEN codigo = ? THEN 0 WHEN codigo LIKE ? THEN 1 ELSE 2 END, nome ASC
-         LIMIT 30`
-      )
-      .all(q, `${q}%`, like, q, `${q}%`);
+    const prefix = `${q}%`;
+    const { rows } = await query(
+      `SELECT id, codigo, nome, preco, ativo
+       FROM produtos
+       WHERE ativo = 1 AND (codigo = $1 OR codigo ILIKE $2 OR nome ILIKE $3)
+       ORDER BY CASE WHEN codigo = $1 THEN 0 WHEN codigo ILIKE $2 THEN 1 ELSE 2 END, nome ASC
+       LIMIT 30`,
+      [q, prefix, like]
+    );
     return res.json(rows);
   }
 
-  const orderClause = "CASE WHEN codigo = '-' THEN 1 ELSE 0 END, CAST(codigo AS INTEGER) ASC, nome ASC";
-  const rows = includeInactive
-    ? db.prepare(`SELECT id, codigo, nome, preco, ativo FROM produtos ORDER BY ${orderClause}`).all()
-    : db.prepare(`SELECT id, codigo, nome, preco, ativo FROM produtos WHERE ativo = 1 ORDER BY ${orderClause}`).all();
+  const orderClause =
+    "CASE WHEN codigo = '-' THEN 1 ELSE 0 END, CASE WHEN codigo ~ '^[0-9]+$' THEN codigo::INTEGER ELSE 999999 END ASC, nome ASC";
+  const { rows } = includeInactive
+    ? await query(`SELECT id, codigo, nome, preco, ativo FROM produtos ORDER BY ${orderClause}`)
+    : await query(
+        `SELECT id, codigo, nome, preco, ativo FROM produtos WHERE ativo = 1 ORDER BY ${orderClause}`
+      );
   res.json(rows);
 });
 
-app.post('/api/produtos', requireAuth, (req, res) => {
+app.post('/api/produtos', requireAuth, async (req, res) => {
   const codigo = String(req.body?.codigo || '').trim();
   const nome = String(req.body?.nome || '').trim();
   const preco = Number(req.body?.preco);
@@ -117,119 +125,132 @@ app.post('/api/produtos', requireAuth, (req, res) => {
   }
 
   if (codigo !== '-') {
-    const existing = db.prepare('SELECT id FROM produtos WHERE codigo = ? AND ativo = 1').get(codigo);
-    if (existing) {
+    const { rows: existing } = await query(
+      'SELECT id FROM produtos WHERE codigo = $1 AND ativo = 1',
+      [codigo]
+    );
+    if (existing.length > 0) {
       return res.status(409).json({ error: `Já existe um produto ativo com o código ${codigo}.` });
     }
   }
 
-  const result = db
-    .prepare('INSERT INTO produtos (codigo, nome, preco, ativo) VALUES (?, ?, ?, 1)')
-    .run(codigo, nome, Number(preco.toFixed(2)));
-  const created = db.prepare('SELECT id, codigo, nome, preco, ativo FROM produtos WHERE id = ?').get(result.lastInsertRowid);
-  res.status(201).json(created);
+  const { rows } = await query(
+    'INSERT INTO produtos (codigo, nome, preco, ativo) VALUES ($1, $2, $3, 1) RETURNING id, codigo, nome, preco, ativo',
+    [codigo, nome, Number(preco.toFixed(2))]
+  );
+  res.status(201).json(rows[0]);
 });
 
-app.put('/api/produtos/:id', requireAuth, (req, res) => {
+app.put('/api/produtos/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
-  const current = db.prepare('SELECT * FROM produtos WHERE id = ?').get(id);
+  const { rows: currentRows } = await query('SELECT * FROM produtos WHERE id = $1', [id]);
+  const current = currentRows[0];
   if (!current) return res.status(404).json({ error: 'Produto não encontrado.' });
 
   const codigo = req.body?.codigo !== undefined ? String(req.body.codigo).trim() : current.codigo;
   const nome = req.body?.nome !== undefined ? String(req.body.nome).trim() : current.nome;
-  const preco = req.body?.preco !== undefined ? Number(req.body.preco) : current.preco;
+  const preco = req.body?.preco !== undefined ? Number(req.body.preco) : Number(current.preco);
   const ativo = req.body?.ativo !== undefined ? (req.body.ativo ? 1 : 0) : current.ativo;
 
   if (!codigo || !nome) return res.status(400).json({ error: 'Código e nome são obrigatórios.' });
   if (!Number.isFinite(preco) || preco < 0) return res.status(400).json({ error: 'Preço inválido.' });
 
   if (ativo === 1 && codigo !== '-') {
-    const conflict = db
-      .prepare('SELECT id FROM produtos WHERE codigo = ? AND ativo = 1 AND id != ?')
-      .get(codigo, id);
-    if (conflict) {
+    const { rows: conflict } = await query(
+      'SELECT id FROM produtos WHERE codigo = $1 AND ativo = 1 AND id <> $2',
+      [codigo, id]
+    );
+    if (conflict.length > 0) {
       return res.status(409).json({ error: `Já existe outro produto ativo com o código ${codigo}.` });
     }
   }
 
-  db.prepare('UPDATE produtos SET codigo = ?, nome = ?, preco = ?, ativo = ? WHERE id = ?').run(
-    codigo,
-    nome,
-    Number(preco.toFixed(2)),
-    ativo,
-    id
+  const { rows } = await query(
+    'UPDATE produtos SET codigo = $1, nome = $2, preco = $3, ativo = $4 WHERE id = $5 RETURNING id, codigo, nome, preco, ativo',
+    [codigo, nome, Number(preco.toFixed(2)), ativo, id]
   );
-  const updated = db.prepare('SELECT id, codigo, nome, preco, ativo FROM produtos WHERE id = ?').get(id);
-  res.json(updated);
+  res.json(rows[0]);
 });
 
 // --- PEDIDOS ---
-function getPedidoDetalhado(id) {
-  const pedido = db
-    .prepare(
-      `SELECT p.*, c.nome AS clienteNome, c.telefone AS clienteTelefone, a.nome AS atendenteNome
-       FROM pedidos p
-       JOIN clientes c ON c.id = p.clienteId
-       JOIN atendentes a ON a.id = p.atendenteId
-       WHERE p.id = ?`
-    )
-    .get(id);
+async function getPedidoDetalhado(id) {
+  const { rows: pedidoRows } = await query(
+    `SELECT p.*, c.nome AS "clienteNome", c.telefone AS "clienteTelefone", a.nome AS "atendenteNome"
+     FROM pedidos p
+     JOIN clientes c ON c.id = p."clienteId"
+     JOIN atendentes a ON a.id = p."atendenteId"
+     WHERE p.id = $1`,
+    [id]
+  );
+  const pedido = pedidoRows[0];
   if (!pedido) return null;
 
-  const itens = db
-    .prepare('SELECT * FROM itens_pedido WHERE pedidoId = ? ORDER BY id ASC')
-    .all(id);
-  const pagamento = db
-    .prepare('SELECT * FROM pagamentos WHERE pedidoId = ? ORDER BY id DESC LIMIT 1')
-    .get(id);
+  const { rows: itens } = await query(
+    'SELECT * FROM itens_pedido WHERE "pedidoId" = $1 ORDER BY id ASC',
+    [id]
+  );
+  const { rows: pagamentoRows } = await query(
+    'SELECT * FROM pagamentos WHERE "pedidoId" = $1 ORDER BY id DESC LIMIT 1',
+    [id]
+  );
 
-  return { ...pedido, itens, pagamento: pagamento || null };
+  return { ...pedido, itens, pagamento: pagamentoRows[0] || null };
 }
 
-app.get('/api/pedidos', requireAuth, (req, res) => {
+app.get('/api/pedidos', requireAuth, async (req, res) => {
   const status = req.query.status ? String(req.query.status) : null;
-  let query = `
-    SELECT p.*, c.nome AS clienteNome, a.nome AS atendenteNome,
-           pg.formaPagamento, pg.valorRecebido, pg.troco, pg.dataHora AS dataHoraPagamento,
-           (SELECT COALESCE(SUM(quantidade), 0) FROM itens_pedido i WHERE i.pedidoId = p.id) AS totalItens
+  let sql = `
+    SELECT p.*, c.nome AS "clienteNome", a.nome AS "atendenteNome",
+           pg."formaPagamento", pg."valorRecebido", pg.troco, pg."dataHora" AS "dataHoraPagamento",
+           (SELECT COALESCE(SUM(quantidade), 0) FROM itens_pedido i WHERE i."pedidoId" = p.id) AS "totalItens"
     FROM pedidos p
-    JOIN clientes c ON c.id = p.clienteId
-    JOIN atendentes a ON a.id = p.atendenteId
-    LEFT JOIN pagamentos pg ON pg.pedidoId = p.id
+    JOIN clientes c ON c.id = p."clienteId"
+    JOIN atendentes a ON a.id = p."atendenteId"
+    LEFT JOIN pagamentos pg ON pg."pedidoId" = p.id
   `;
   const params = [];
   if (status) {
-    const statuses = status.split(',').map((s) => s.trim()).filter(Boolean);
+    const statuses = status
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
     if (statuses.length > 0) {
-      query += ` WHERE p.status IN (${statuses.map(() => '?').join(',')})`;
+      const placeholders = statuses.map((_, idx) => `$${idx + 1}`).join(',');
+      sql += ` WHERE p.status IN (${placeholders})`;
       params.push(...statuses);
     }
   }
-  query += ' ORDER BY p.id DESC';
-  const rows = db.prepare(query).all(...params);
+  sql += ' ORDER BY p.id DESC';
+  const { rows } = await query(sql, params);
   res.json(rows);
 });
 
-app.get('/api/pedidos/:id', requireAuth, (req, res) => {
+app.get('/api/pedidos/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
-  const pedido = getPedidoDetalhado(id);
+  const pedido = await getPedidoDetalhado(id);
   if (!pedido) return res.status(404).json({ error: 'Pedido não encontrado.' });
   res.json(pedido);
 });
 
-function resolveClienteId(clienteIdInput, clienteNomeInput) {
+async function resolveClienteId(clienteIdInput, clienteNomeInput) {
   if (clienteNomeInput !== undefined) {
     const nome = String(clienteNomeInput || '').trim() || 'Cliente Avulso';
-    const existing = db.prepare('SELECT id FROM clientes WHERE LOWER(nome) = LOWER(?) AND ativo = 1').get(nome);
-    if (existing) return existing.id;
-    const inserted = db.prepare('INSERT INTO clientes (nome, telefone, ativo) VALUES (?, ?, 1)').run(nome, '');
-    return Number(inserted.lastInsertRowid);
+    const { rows: existing } = await query(
+      'SELECT id FROM clientes WHERE LOWER(nome) = LOWER($1) AND ativo = 1',
+      [nome]
+    );
+    if (existing.length > 0) return existing[0].id;
+    const { rows: inserted } = await query(
+      'INSERT INTO clientes (nome, telefone, ativo) VALUES ($1, $2, 1) RETURNING id',
+      [nome, '']
+    );
+    return inserted[0].id;
   }
   return Number(clienteIdInput);
 }
 
-app.post('/api/pedidos', requireAuth, (req, res) => {
-  const clienteId = resolveClienteId(req.body?.clienteId, req.body?.clienteNome);
+app.post('/api/pedidos', requireAuth, async (req, res) => {
+  const clienteId = await resolveClienteId(req.body?.clienteId, req.body?.clienteNome);
   const atendenteId = Number(req.body?.atendenteId);
   const comentario = String(req.body?.comentario || '').trim();
   const requestedStatus = req.body?.status === 'PENDENTE' ? 'PENDENTE' : 'EM_ANDAMENTO';
@@ -241,75 +262,120 @@ app.post('/api/pedidos', requireAuth, (req, res) => {
     return res.status(400).json({ error: 'Selecione um atendente.' });
   }
 
-  const cliente = db.prepare('SELECT id FROM clientes WHERE id = ? AND ativo = 1').get(clienteId);
-  if (!cliente) return res.status(400).json({ error: 'Cliente inválido ou inativo.' });
+  const { rows: clienteRows } = await query('SELECT id FROM clientes WHERE id = $1 AND ativo = 1', [
+    clienteId,
+  ]);
+  if (clienteRows.length === 0) return res.status(400).json({ error: 'Cliente inválido ou inativo.' });
 
-  const atendente = db.prepare('SELECT id FROM atendentes WHERE id = ? AND ativo = 1').get(atendenteId);
-  if (!atendente) return res.status(400).json({ error: 'Atendente inválido ou inativo.' });
+  const { rows: atendenteRows } = await query(
+    'SELECT id FROM atendentes WHERE id = $1 AND ativo = 1',
+    [atendenteId]
+  );
+  if (atendenteRows.length === 0) {
+    return res.status(400).json({ error: 'Atendente inválido ou inativo.' });
+  }
 
   const now = new Date().toISOString();
-  const result = db
-    .prepare(
-      `INSERT INTO pedidos (clienteId, atendenteId, status, dataHoraCriacao, comentario, subtotal, acrescimos, descontos, total)
-       VALUES (?, ?, ?, ?, ?, 0, 0, 0, 0)`
-    )
-    .run(clienteId, atendenteId, requestedStatus, now, comentario);
+  const { rows: inserted } = await query(
+    `INSERT INTO pedidos ("clienteId", "atendenteId", status, "dataHoraCriacao", comentario, subtotal, acrescimos, descontos, total)
+     VALUES ($1, $2, $3, $4, $5, 0, 0, 0, 0)
+     RETURNING id`,
+    [clienteId, atendenteId, requestedStatus, now, comentario]
+  );
 
-  const created = getPedidoDetalhado(result.lastInsertRowid);
+  const created = await getPedidoDetalhado(inserted[0].id);
   res.status(201).json(created);
 });
 
-app.put('/api/pedidos/:id', requireAuth, (req, res) => {
+app.put('/api/pedidos/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
-  const pedido = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(id);
+  const { rows: pedidoRows } = await query('SELECT * FROM pedidos WHERE id = $1', [id]);
+  const pedido = pedidoRows[0];
   if (!pedido) return res.status(404).json({ error: 'Pedido não encontrado.' });
 
   if (pedido.status === 'FINALIZADO' || pedido.status === 'CANCELADO') {
-    return res.status(400).json({ error: `Não é possível alterar um pedido ${pedido.status.toLowerCase()}.` });
+    return res
+      .status(400)
+      .json({ error: `Não é possível alterar um pedido ${pedido.status.toLowerCase()}.` });
   }
 
   const clienteId =
     req.body?.clienteNome !== undefined
-      ? resolveClienteId(undefined, req.body.clienteNome)
+      ? await resolveClienteId(undefined, req.body.clienteNome)
       : req.body?.clienteId !== undefined
       ? Number(req.body.clienteId)
       : pedido.clienteId;
-  const atendenteId = req.body?.atendenteId !== undefined ? Number(req.body.atendenteId) : pedido.atendenteId;
-  const comentario = req.body?.comentario !== undefined ? String(req.body.comentario).trim() : pedido.comentario;
+  const atendenteId =
+    req.body?.atendenteId !== undefined ? Number(req.body.atendenteId) : pedido.atendenteId;
+  const comentario =
+    req.body?.comentario !== undefined ? String(req.body.comentario).trim() : pedido.comentario;
   const status =
     req.body?.status && ['PENDENTE', 'EM_ANDAMENTO'].includes(req.body.status)
       ? req.body.status
       : pedido.status;
 
-  const acrescimos = req.body?.acrescimos !== undefined ? Number(req.body.acrescimos) : pedido.acrescimos;
-  const descontos = req.body?.descontos !== undefined ? Number(req.body.descontos) : pedido.descontos;
+  const acrescimos =
+    req.body?.acrescimos !== undefined ? Number(req.body.acrescimos) : Number(pedido.acrescimos);
+  const descontos =
+    req.body?.descontos !== undefined ? Number(req.body.descontos) : Number(pedido.descontos);
 
-  if (!Number.isInteger(clienteId) || !db.prepare('SELECT id FROM clientes WHERE id = ?').get(clienteId)) {
+  if (!Number.isInteger(clienteId)) {
     return res.status(400).json({ error: 'Cliente inválido.' });
   }
-  if (!Number.isInteger(atendenteId) || !db.prepare('SELECT id FROM atendentes WHERE id = ?').get(atendenteId)) {
+  const { rows: clienteCheck } = await query('SELECT id FROM clientes WHERE id = $1', [clienteId]);
+  if (clienteCheck.length === 0) {
+    return res.status(400).json({ error: 'Cliente inválido.' });
+  }
+
+  if (!Number.isInteger(atendenteId)) {
     return res.status(400).json({ error: 'Atendente inválido.' });
   }
-  if (!Number.isFinite(acrescimos) || acrescimos < 0 || !Number.isFinite(descontos) || descontos < 0) {
-    return res.status(400).json({ error: 'Acréscimos e descontos devem ser valores válidos não negativos.' });
+  const { rows: atendenteCheck } = await query('SELECT id FROM atendentes WHERE id = $1', [
+    atendenteId,
+  ]);
+  if (atendenteCheck.length === 0) {
+    return res.status(400).json({ error: 'Atendente inválido.' });
   }
 
-  db.prepare(
-    'UPDATE pedidos SET clienteId = ?, atendenteId = ?, comentario = ?, status = ?, acrescimos = ?, descontos = ? WHERE id = ?'
-  ).run(clienteId, atendenteId, comentario, status, Number(acrescimos.toFixed(2)), Number(descontos.toFixed(2)), id);
+  if (
+    !Number.isFinite(acrescimos) ||
+    acrescimos < 0 ||
+    !Number.isFinite(descontos) ||
+    descontos < 0
+  ) {
+    return res
+      .status(400)
+      .json({ error: 'Acréscimos e descontos devem ser valores válidos não negativos.' });
+  }
 
-  recalcPedidoTotals(id);
-  res.json(getPedidoDetalhado(id));
+  await query(
+    'UPDATE pedidos SET "clienteId" = $1, "atendenteId" = $2, comentario = $3, status = $4, acrescimos = $5, descontos = $6 WHERE id = $7',
+    [
+      clienteId,
+      atendenteId,
+      comentario,
+      status,
+      Number(acrescimos.toFixed(2)),
+      Number(descontos.toFixed(2)),
+      id,
+    ]
+  );
+
+  await recalcPedidoTotals(id);
+  res.json(await getPedidoDetalhado(id));
 });
 
 // --- ITENS DO PEDIDO ---
-app.post('/api/pedidos/:id/itens', requireAuth, (req, res) => {
+app.post('/api/pedidos/:id/itens', requireAuth, async (req, res) => {
   const pedidoId = Number(req.params.id);
-  const pedido = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(pedidoId);
+  const { rows: pedidoRows } = await query('SELECT * FROM pedidos WHERE id = $1', [pedidoId]);
+  const pedido = pedidoRows[0];
   if (!pedido) return res.status(404).json({ error: 'Pedido não encontrado.' });
 
   if (pedido.status === 'FINALIZADO' || pedido.status === 'CANCELADO') {
-    return res.status(400).json({ error: `Não é possível adicionar itens a um pedido ${pedido.status.toLowerCase()}.` });
+    return res
+      .status(400)
+      .json({ error: `Não é possível adicionar itens a um pedido ${pedido.status.toLowerCase()}.` });
   }
 
   const produtoId = Number(req.body?.produtoId);
@@ -319,66 +385,82 @@ app.post('/api/pedidos/:id/itens', requireAuth, (req, res) => {
     return res.status(400).json({ error: 'A quantidade deve ser maior que zero.' });
   }
 
-  const produto = db.prepare('SELECT * FROM produtos WHERE id = ? AND ativo = 1').get(produtoId);
+  const { rows: produtoRows } = await query(
+    'SELECT * FROM produtos WHERE id = $1 AND ativo = 1',
+    [produtoId]
+  );
+  const produto = produtoRows[0];
   if (!produto) {
     return res.status(404).json({ error: 'Produto não encontrado ou inativo.' });
   }
 
-  let precoUnitario = Number(produto.preco.toFixed(2));
+  let precoUnitario = Number(Number(produto.preco).toFixed(2));
   if (produto.codigo === '01' || req.body?.precoUnitario !== undefined) {
     const customPreco = Number(req.body?.precoUnitario);
     if (produto.codigo === '01' && (!Number.isFinite(customPreco) || customPreco <= 0)) {
-      return res.status(400).json({ error: 'Informe um preço válido maior que zero para o Self service.' });
+      return res
+        .status(400)
+        .json({ error: 'Informe um preço válido maior que zero para o Self service.' });
     }
     if (Number.isFinite(customPreco) && customPreco >= 0) {
       precoUnitario = Number(customPreco.toFixed(2));
     }
   }
 
-  const existingItem = db
-    .prepare('SELECT * FROM itens_pedido WHERE pedidoId = ? AND produtoId = ? AND precoUnitario = ?')
-    .get(pedidoId, produto.id, precoUnitario);
+  const { rows: existingItems } = await query(
+    'SELECT * FROM itens_pedido WHERE "pedidoId" = $1 AND "produtoId" = $2 AND "precoUnitario" = $3',
+    [pedidoId, produto.id, precoUnitario]
+  );
+  const existingItem = existingItems[0];
 
   if (existingItem) {
     const novaQtd = existingItem.quantidade + quantidade;
-    const novoSubtotal = Number((novaQtd * existingItem.precoUnitario).toFixed(2));
-    db.prepare('UPDATE itens_pedido SET quantidade = ?, subtotal = ? WHERE id = ?').run(
+    const novoSubtotal = Number((novaQtd * Number(existingItem.precoUnitario)).toFixed(2));
+    await query('UPDATE itens_pedido SET quantidade = $1, subtotal = $2 WHERE id = $3', [
       novaQtd,
       novoSubtotal,
-      existingItem.id
-    );
+      existingItem.id,
+    ]);
   } else {
     const subtotal = Number((quantidade * precoUnitario).toFixed(2));
-    db.prepare(
-      `INSERT INTO itens_pedido (pedidoId, produtoId, codigoProduto, nomeProduto, quantidade, precoUnitario, subtotal)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
-    ).run(pedidoId, produto.id, produto.codigo, produto.nome, quantidade, precoUnitario, subtotal);
+    await query(
+      `INSERT INTO itens_pedido ("pedidoId", "produtoId", "codigoProduto", "nomeProduto", quantidade, "precoUnitario", subtotal)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [pedidoId, produto.id, produto.codigo, produto.nome, quantidade, precoUnitario, subtotal]
+    );
   }
 
-  recalcPedidoTotals(pedidoId);
-  res.status(201).json(getPedidoDetalhado(pedidoId));
+  await recalcPedidoTotals(pedidoId);
+  res.status(201).json(await getPedidoDetalhado(pedidoId));
 });
 
-app.put('/api/pedidos/:id/itens/:itemId', requireAuth, (req, res) => {
+app.put('/api/pedidos/:id/itens/:itemId', requireAuth, async (req, res) => {
   const pedidoId = Number(req.params.id);
   const itemId = Number(req.params.itemId);
   const quantidade = Number(req.body?.quantidade);
 
-  const pedido = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(pedidoId);
+  const { rows: pedidoRows } = await query('SELECT * FROM pedidos WHERE id = $1', [pedidoId]);
+  const pedido = pedidoRows[0];
   if (!pedido) return res.status(404).json({ error: 'Pedido não encontrado.' });
 
   if (pedido.status === 'FINALIZADO' || pedido.status === 'CANCELADO') {
-    return res.status(400).json({ error: `Não é possível alterar um pedido ${pedido.status.toLowerCase()}.` });
+    return res
+      .status(400)
+      .json({ error: `Não é possível alterar um pedido ${pedido.status.toLowerCase()}.` });
   }
 
   if (!Number.isInteger(quantidade) || quantidade <= 0) {
     return res.status(400).json({ error: 'A quantidade deve ser maior que zero.' });
   }
 
-  const item = db.prepare('SELECT * FROM itens_pedido WHERE id = ? AND pedidoId = ?').get(itemId, pedidoId);
+  const { rows: itemRows } = await query(
+    'SELECT * FROM itens_pedido WHERE id = $1 AND "pedidoId" = $2',
+    [itemId, pedidoId]
+  );
+  const item = itemRows[0];
   if (!item) return res.status(404).json({ error: 'Item não encontrado no pedido.' });
 
-  let precoUnitario = item.precoUnitario;
+  let precoUnitario = Number(item.precoUnitario);
   if (req.body?.precoUnitario !== undefined) {
     const novoPreco = Number(req.body.precoUnitario);
     if (!Number.isFinite(novoPreco) || novoPreco <= 0) {
@@ -388,37 +470,39 @@ app.put('/api/pedidos/:id/itens/:itemId', requireAuth, (req, res) => {
   }
 
   const subtotal = Number((quantidade * precoUnitario).toFixed(2));
-  db.prepare('UPDATE itens_pedido SET quantidade = ?, precoUnitario = ?, subtotal = ? WHERE id = ?').run(
-    quantidade,
-    precoUnitario,
-    subtotal,
-    itemId
+  await query(
+    'UPDATE itens_pedido SET quantidade = $1, "precoUnitario" = $2, subtotal = $3 WHERE id = $4',
+    [quantidade, precoUnitario, subtotal, itemId]
   );
 
-  recalcPedidoTotals(pedidoId);
-  res.json(getPedidoDetalhado(pedidoId));
+  await recalcPedidoTotals(pedidoId);
+  res.json(await getPedidoDetalhado(pedidoId));
 });
 
-app.delete('/api/pedidos/:id/itens/:itemId', requireAuth, (req, res) => {
+app.delete('/api/pedidos/:id/itens/:itemId', requireAuth, async (req, res) => {
   const pedidoId = Number(req.params.id);
   const itemId = Number(req.params.itemId);
 
-  const pedido = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(pedidoId);
+  const { rows: pedidoRows } = await query('SELECT * FROM pedidos WHERE id = $1', [pedidoId]);
+  const pedido = pedidoRows[0];
   if (!pedido) return res.status(404).json({ error: 'Pedido não encontrado.' });
 
   if (pedido.status === 'FINALIZADO' || pedido.status === 'CANCELADO') {
-    return res.status(400).json({ error: `Não é possível alterar um pedido ${pedido.status.toLowerCase()}.` });
+    return res
+      .status(400)
+      .json({ error: `Não é possível alterar um pedido ${pedido.status.toLowerCase()}.` });
   }
 
-  db.prepare('DELETE FROM itens_pedido WHERE id = ? AND pedidoId = ?').run(itemId, pedidoId);
-  recalcPedidoTotals(pedidoId);
-  res.json(getPedidoDetalhado(pedidoId));
+  await query('DELETE FROM itens_pedido WHERE id = $1 AND "pedidoId" = $2', [itemId, pedidoId]);
+  await recalcPedidoTotals(pedidoId);
+  res.json(await getPedidoDetalhado(pedidoId));
 });
 
 // --- FECHAR / FINALIZAR PEDIDO ---
-app.post('/api/pedidos/:id/fechar', requireAuth, (req, res) => {
+app.post('/api/pedidos/:id/fechar', requireAuth, async (req, res) => {
   const pedidoId = Number(req.params.id);
-  const pedido = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(pedidoId);
+  const { rows: pedidoRows } = await query('SELECT * FROM pedidos WHERE id = $1', [pedidoId]);
+  const pedido = pedidoRows[0];
   if (!pedido) return res.status(404).json({ error: 'Pedido não encontrado.' });
 
   if (pedido.status === 'FINALIZADO') {
@@ -428,12 +512,17 @@ app.post('/api/pedidos/:id/fechar', requireAuth, (req, res) => {
     return res.status(400).json({ error: 'Não é possível finalizar um pedido cancelado.' });
   }
 
-  const itemCount = db.prepare('SELECT COUNT(*) AS count FROM itens_pedido WHERE pedidoId = ?').get(pedidoId).count;
-  if (itemCount === 0) {
-    return res.status(400).json({ error: 'Adicione pelo menos um produto antes de fechar o pedido.' });
+  const { rows: countRows } = await query(
+    'SELECT COUNT(*) AS count FROM itens_pedido WHERE "pedidoId" = $1',
+    [pedidoId]
+  );
+  if (countRows[0].count === 0) {
+    return res
+      .status(400)
+      .json({ error: 'Adicione pelo menos um produto antes de fechar o pedido.' });
   }
 
-  const totals = recalcPedidoTotals(pedidoId);
+  const totals = await recalcPedidoTotals(pedidoId);
   const total = totals.total;
 
   const formaPagamento = String(req.body?.formaPagamento || '').trim();
@@ -456,30 +545,34 @@ app.post('/api/pedidos/:id/fechar', requireAuth, (req, res) => {
   }
 
   const now = new Date().toISOString();
+  const client = await getClient();
 
-  db.exec('BEGIN');
   try {
-    db.prepare('UPDATE pedidos SET status = ?, dataHoraFinalizacao = ? WHERE id = ?').run(
-      'FINALIZADO',
-      now,
-      pedidoId
+    await client.query('BEGIN');
+    await client.query(
+      'UPDATE pedidos SET status = $1, "dataHoraFinalizacao" = $2 WHERE id = $3',
+      ['FINALIZADO', now, pedidoId]
     );
-    db.prepare(
-      'INSERT INTO pagamentos (pedidoId, formaPagamento, valorRecebido, troco, dataHora) VALUES (?, ?, ?, ?, ?)'
-    ).run(pedidoId, formaPagamento, valorRecebido, troco, now);
-    db.exec('COMMIT');
+    await client.query(
+      'INSERT INTO pagamentos ("pedidoId", "formaPagamento", "valorRecebido", troco, "dataHora") VALUES ($1, $2, $3, $4, $5)',
+      [pedidoId, formaPagamento, valorRecebido, troco, now]
+    );
+    await client.query('COMMIT');
   } catch (err) {
-    db.exec('ROLLBACK');
+    await client.query('ROLLBACK');
     throw err;
+  } finally {
+    client.release();
   }
 
-  res.json(getPedidoDetalhado(pedidoId));
+  res.json(await getPedidoDetalhado(pedidoId));
 });
 
 // --- CANCELAR PEDIDO ---
-app.post('/api/pedidos/:id/cancelar', requireAuth, (req, res) => {
+app.post('/api/pedidos/:id/cancelar', requireAuth, async (req, res) => {
   const pedidoId = Number(req.params.id);
-  const pedido = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(pedidoId);
+  const { rows: pedidoRows } = await query('SELECT * FROM pedidos WHERE id = $1', [pedidoId]);
+  const pedido = pedidoRows[0];
   if (!pedido) return res.status(404).json({ error: 'Pedido não encontrado.' });
 
   if (pedido.status === 'FINALIZADO') {
@@ -490,39 +583,41 @@ app.post('/api/pedidos/:id/cancelar', requireAuth, (req, res) => {
   }
 
   const now = new Date().toISOString();
-  db.prepare('UPDATE pedidos SET status = ?, dataHoraCancelamento = ? WHERE id = ?').run(
-    'CANCELADO',
-    now,
-    pedidoId
+  await query(
+    'UPDATE pedidos SET status = $1, "dataHoraCancelamento" = $2 WHERE id = $3',
+    ['CANCELADO', now, pedidoId]
   );
 
-  res.json(getPedidoDetalhado(pedidoId));
+  res.json(await getPedidoDetalhado(pedidoId));
 });
 
 // --- HISTÓRICO / RESUMO ---
-app.get('/api/historico/resumo', requireAuth, (req, res) => {
-  const totals = db
-    .prepare(
-      `SELECT COUNT(*) AS quantidadeFinalizados, COALESCE(SUM(total), 0) AS totalVendido
-       FROM pedidos WHERE status = 'FINALIZADO'`
-    )
-    .get();
+app.get('/api/historico/resumo', requireAuth, async (req, res) => {
+  const { rows: totalsRows } = await query(
+    `SELECT COUNT(*) AS "quantidadeFinalizados", COALESCE(SUM(total), 0) AS "totalVendido"
+     FROM pedidos WHERE status = 'FINALIZADO'`
+  );
 
-  const porFormaPagamento = db
-    .prepare(
-      `SELECT pg.formaPagamento, COUNT(*) AS quantidade, COALESCE(SUM(p.total), 0) AS total
-       FROM pagamentos pg
-       JOIN pedidos p ON p.id = pg.pedidoId
-       WHERE p.status = 'FINALIZADO'
-       GROUP BY pg.formaPagamento`
-    )
-    .all();
+  const { rows: porFormaPagamento } = await query(
+    `SELECT pg."formaPagamento", COUNT(*) AS quantidade, COALESCE(SUM(p.total), 0) AS total
+     FROM pagamentos pg
+     JOIN pedidos p ON p.id = pg."pedidoId"
+     WHERE p.status = 'FINALIZADO'
+     GROUP BY pg."formaPagamento"`
+  );
 
+  const totals = totalsRows[0] || {};
   res.json({
     quantidadeFinalizados: totals.quantidadeFinalizados || 0,
-    totalVendido: Number((totals.totalVendido || 0).toFixed(2)),
+    totalVendido: Number((Number(totals.totalVendido) || 0).toFixed(2)),
     porFormaPagamento,
   });
+});
+
+// Tratamento global de erros
+app.use((err, _req, res, _next) => {
+  console.error('Erro na API:', err);
+  res.status(500).json({ error: 'Erro interno no servidor.' });
 });
 
 // Serve frontend build in production
@@ -536,6 +631,17 @@ if (fs.existsSync(distPath)) {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`Servidor PDV Sorveteria rodando em http://localhost:${PORT}`);
-});
+async function startServer() {
+  try {
+    await initDatabase();
+    app.listen(PORT, () => {
+      console.log(`Servidor PDV Sorveteria rodando em http://localhost:${PORT} (PostgreSQL)`);
+    });
+  } catch (err) {
+    console.error('Falha ao conectar/inicializar o PostgreSQL:', err.message);
+    console.error('Verifique se o PostgreSQL está rodando e se o arquivo .env está configurado (veja .env.example).');
+    process.exit(1);
+  }
+}
+
+startServer();
