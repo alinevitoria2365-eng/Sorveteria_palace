@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, User as UserIcon, AlertCircle } from 'lucide-react';
+import { Lock, User as UserIcon, AlertCircle, UserPlus, BadgeCheck } from 'lucide-react';
 import { api, setStoredToken } from '../api';
 import type { User } from '../types';
 
@@ -32,14 +32,51 @@ const IceCreamDoodleSvg: React.FC<{ className?: string }> = ({ className = 'w-9 
 );
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [nome, setNome] = useState('');
   const [usuario, setUsuario] = useState('');
   const [senha, setSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  function switchMode(nextMode: 'login' | 'register') {
+    setMode(nextMode);
+    setError('');
+    setSenha('');
+    setConfirmarSenha('');
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+
+    if (mode === 'register') {
+      if (!nome.trim() || !usuario.trim() || !senha) {
+        setError('Preencha nome, usuário e senha.');
+        return;
+      }
+      if (senha.length < 4) {
+        setError('A senha deve ter pelo menos 4 caracteres.');
+        return;
+      }
+      if (senha !== confirmarSenha) {
+        setError('As senhas não coincidem.');
+        return;
+      }
+      setLoading(true);
+      try {
+        const res = await api.register(nome.trim(), usuario.trim(), senha);
+        setStoredToken(res.token);
+        onLoginSuccess(res.user);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Erro ao cadastrar usuário.');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     if (!usuario.trim() || !senha) {
       setError('Preencha usuário e senha.');
       return;
@@ -123,11 +160,31 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             SORVETERIA PALÁCIO
           </h1>
           <p className="text-sm italic font-semibold text-[#5c1d3d] mt-1">
-            Acesso ao Balcão
+            {mode === 'login' ? 'Acesso ao Balcão' : 'Cadastrar Novo Usuário'}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === 'register' && (
+            <div>
+              <label className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
+                <BadgeCheck className="w-3.5 h-3.5 text-[#1b5e3a]" />
+                NOME COMPLETO
+              </label>
+              <div className="relative">
+                <BadgeCheck className="w-4 h-4 text-[#1b5e3a] absolute left-4 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  placeholder="Digite seu nome"
+                  autoFocus
+                  className="w-full pl-11 pr-4 py-3 rounded-full border border-[#8eb09b] bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a] transition"
+                />
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
               <UserIcon className="w-3.5 h-3.5 text-[#1b5e3a]" />
@@ -140,7 +197,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                 value={usuario}
                 onChange={(e) => setUsuario(e.target.value)}
                 placeholder="Digite seu usuário"
-                autoFocus
+                autoFocus={mode === 'login'}
                 className="w-full pl-11 pr-4 py-3 rounded-full border border-[#8eb09b] bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a] transition"
               />
             </div>
@@ -157,11 +214,30 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                 type="password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                placeholder="Digite sua senha"
+                placeholder={mode === 'register' ? 'Mínimo 4 caracteres' : 'Digite sua senha'}
                 className="w-full pl-11 pr-4 py-3 rounded-full border border-[#8eb09b] bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a] transition"
               />
             </div>
           </div>
+
+          {mode === 'register' && (
+            <div>
+              <label className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[#123d26] mb-1.5 ml-1">
+                <Lock className="w-3.5 h-3.5 text-[#1b5e3a]" />
+                CONFIRMAR SENHA
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-[#1b5e3a] absolute left-4 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  value={confirmarSenha}
+                  onChange={(e) => setConfirmarSenha(e.target.value)}
+                  placeholder="Repita a senha"
+                  className="w-full pl-11 pr-4 py-3 rounded-full border border-[#8eb09b] bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1b5e3a]/30 focus:border-[#1b5e3a] transition"
+                />
+              </div>
+            </div>
+          )}
 
           {error && (
             <div className="flex items-center gap-2 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-2xl px-4 py-2.5">
@@ -175,7 +251,22 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             disabled={loading}
             className="w-full py-3.5 mt-2 rounded-full bg-gradient-to-r from-[#123d26] via-[#1b5e3a] to-[#267349] hover:from-[#0d2e1c] hover:to-[#1b5e3a] text-white font-extrabold tracking-wider shadow-lg shadow-emerald-950/25 transition disabled:opacity-60 cursor-pointer"
           >
-            {loading ? 'ENTRANDO...' : 'ENTRAR'}
+            {loading
+              ? mode === 'login'
+                ? 'ENTRANDO...'
+                : 'CADASTRANDO...'
+              : mode === 'login'
+              ? 'ENTRAR'
+              : 'CADASTRAR E ENTRAR'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}
+            className="w-full py-2.5 rounded-full border border-[#8eb09b] bg-white/80 hover:bg-[#eef4ec] text-[#123d26] text-xs font-extrabold tracking-wide inline-flex items-center justify-center gap-1.5 transition cursor-pointer"
+          >
+            <UserPlus className="w-4 h-4 text-[#1b5e3a]" />
+            {mode === 'login' ? 'Criar novo usuário' : 'Já tenho conta • Voltar ao login'}
           </button>
         </form>
 

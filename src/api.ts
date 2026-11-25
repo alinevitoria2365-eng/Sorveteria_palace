@@ -8,6 +8,7 @@ import type {
   PedidoStatus,
   Produto,
   User,
+  UsuarioItem,
 } from './types';
 
 function isStaticHost(): boolean {
@@ -70,8 +71,32 @@ export const api = {
           method: 'POST',
           body: JSON.stringify({ usuario, senha }),
         }),
+  register: async (nome: string, usuario: string, senha: string) =>
+    isStaticHost()
+      ? localStore.register(nome, usuario, senha)
+      : request<{ token: string; user: User }>('/api/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({ nome, usuario, senha }),
+        }),
   me: async () =>
     isStaticHost() ? localStore.me(getStoredToken()) : request<{ user: User }>('/api/auth/me'),
+
+  getUsuarios: async () =>
+    isStaticHost() ? localStore.getUsuarios() : request<UsuarioItem[]>('/api/usuarios'),
+  createUsuario: async (data: { nome: string; usuario: string; senha: string }) =>
+    isStaticHost()
+      ? localStore.createUsuario(data)
+      : request<UsuarioItem>('/api/usuarios', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+  updateUsuario: async (id: number, data: { ativo: boolean }) =>
+    isStaticHost()
+      ? localStore.updateUsuario(id, data)
+      : request<UsuarioItem>(`/api/usuarios/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        }),
 
   getClientes: async () =>
     isStaticHost() ? localStore.getClientes() : request<Cliente[]>('/api/clientes'),

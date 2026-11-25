@@ -39,7 +39,7 @@ echo [INFO] Iniciando backend (porta 3001) e frontend (porta 5173)...
 echo [INFO] Para encerrar, feche esta janela ou pressione Ctrl+C.
 echo.
 
-start "" cmd /c "timeout /t 3 /nobreak >nul && start http://localhost:5173"
+start "" powershell -NoProfile -WindowStyle Hidden -Command "for ($i=0; $i -lt 30; $i++) { try { $c = New-Object Net.Sockets.TcpClient('127.0.0.1', 3001); $c.Close(); break } catch { Start-Sleep -Milliseconds 500 } }; Start-Process 'http://localhost:5173'"
 call npm run dev
 
 if errorlevel 1 (

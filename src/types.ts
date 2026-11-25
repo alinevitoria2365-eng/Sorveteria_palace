@@ -8,6 +8,10 @@ export interface User {
   usuario: string;
 }
 
+export interface UsuarioItem extends User {
+  ativo: number;
+}
+
 export interface Cliente {
   id: number;
   nome: string;

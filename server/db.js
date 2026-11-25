@@ -43,6 +43,29 @@ export function getClient() {
 }
 
 export async function initDatabase() {
+  try {
+    await pool.query('SELECT 1');
+  } catch (err) {
+    // Se o servidor PostgreSQL estiver rodando mas o banco ainda não existir (3D000), cria automaticamente
+    if (err?.code === '3D000' && !process.env.DATABASE_URL) {
+      const dbName = process.env.PGDATABASE || 'sorveteria_pdv';
+      const adminPool = new Pool({
+        host: process.env.PGHOST || 'localhost',
+        port: Number(process.env.PGPORT) || 5432,
+        user: process.env.PGUSER || 'postgres',
+        password: process.env.PGPASSWORD || 'postgres',
+        database: 'postgres',
+      });
+      try {
+        await adminPool.query(`CREATE DATABASE "${dbName.replace(/"/g, '')}"`);
+      } finally {
+        await adminPool.end();
+      }
+    } else {
+      throw err;
+    }
+  }
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS usuarios (
       id SERIAL PRIMARY KEY,

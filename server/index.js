@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getClient, initDatabase, query, recalcPedidoTotals } from './db.js';
-import { createSessionToken, requireAuth, verifyPassword } from './auth.js';
+import { createSessionToken, hashPassword, requireAuth, verifyPassword } from './auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3001;
@@ -15,13 +15,44 @@ app.use(express.json());
 const PAYMENT_METHODS = ['Dinheiro', 'Pix', 'Cartão de débito', 'Cartão de crédito'];
 
 // --- AUTH ---
+async function createUsuarioNoBanco(nomeInput, usuarioInput, senhaInput) {
+  const nome = String(nomeInput || '').trim();
+  const usuario = String(usuarioInput || '').trim().toLowerCase();
+  const senha = String(senhaInput || '');
+
+  if (!nome) {
+    return { status: 400, error: 'Informe o nome completo.' };
+  }
+  if (!usuario || usuario.length < 3 || /\s/.test(usuario)) {
+    return { status: 400, error: 'O usuário deve ter pelo menos 3 caracteres e não pode conter espaços.' };
+  }
+  if (senha.length < 4) {
+    return { status: 400, error: 'A senha deve ter pelo menos 4 caracteres.' };
+  }
+
+  const { rows: existing } = await query(
+    'SELECT id FROM usuarios WHERE LOWER(usuario) = LOWER($1)',
+    [usuario]
+  );
+  if (existing.length > 0) {
+    return { status: 409, error: `O usuário "${usuario}" já está cadastrado.` };
+  }
+
+  const senhaHash = hashPassword(senha);
+  const { rows } = await query(
+    'INSERT INTO usuarios (nome, usuario, "senhaHash", ativo) VALUES ($1, $2, $3, 1) RETURNING id, nome, usuario, ativo',
+    [nome, usuario, senhaHash]
+  );
+  return { status: 201, user: rows[0] };
+}
+
 app.post('/api/auth/login', async (req, res) => {
   const { usuario, senha } = req.body || {};
   if (!usuario || !senha) {
     return res.status(400).json({ error: 'Informe usuário e senha.' });
   }
   const { rows } = await query(
-    'SELECT id, nome, usuario, "senhaHash", ativo FROM usuarios WHERE usuario = $1',
+    'SELECT id, nome, usuario, "senhaHash", ativo FROM usuarios WHERE LOWER(usuario) = LOWER($1)',
     [String(usuario).trim()]
   );
   const user = rows[0];
@@ -37,8 +68,56 @@ app.post('/api/auth/login', async (req, res) => {
   });
 });
 
+app.post('/api/auth/register', async (req, res) => {
+  const result = await createUsuarioNoBanco(req.body?.nome, req.body?.usuario, req.body?.senha);
+  if (result.error) {
+    return res.status(result.status).json({ error: result.error });
+  }
+  const user = result.user;
+  const token = createSessionToken(user);
+  res.status(201).json({
+    token,
+    user: { id: user.id, nome: user.nome, usuario: user.usuario },
+  });
+});
+
 app.get('/api/auth/me', requireAuth, (req, res) => {
   res.json({ user: req.user });
+});
+
+// --- USUÁRIOS ---
+app.get('/api/usuarios', requireAuth, async (_req, res) => {
+  const { rows } = await query('SELECT id, nome, usuario, ativo FROM usuarios ORDER BY id ASC');
+  res.json(rows);
+});
+
+app.post('/api/usuarios', requireAuth, async (req, res) => {
+  const result = await createUsuarioNoBanco(req.body?.nome, req.body?.usuario, req.body?.senha);
+  if (result.error) {
+    return res.status(result.status).json({ error: result.error });
+  }
+  res.status(201).json(result.user);
+});
+
+app.put('/api/usuarios/:id', requireAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  const { rows: currentRows } = await query(
+    'SELECT id, nome, usuario, ativo FROM usuarios WHERE id = $1',
+    [id]
+  );
+  const current = currentRows[0];
+  if (!current) return res.status(404).json({ error: 'Usuário não encontrado.' });
+
+  const ativo = req.body?.ativo !== undefined ? (req.body.ativo ? 1 : 0) : current.ativo;
+  if (req.user.id === id && ativo === 0) {
+    return res.status(400).json({ error: 'Não é possível desativar o próprio usuário logado.' });
+  }
+
+  const { rows } = await query(
+    'UPDATE usuarios SET ativo = $1 WHERE id = $2 RETURNING id, nome, usuario, ativo',
+    [ativo, id]
+  );
+  res.json(rows[0]);
 });
 
 // --- CLIENTES ---
@@ -638,7 +717,14 @@ async function startServer() {
       console.log(`Servidor PDV Sorveteria rodando em http://localhost:${PORT} (PostgreSQL)`);
     });
   } catch (err) {
-    console.error('Falha ao conectar/inicializar o PostgreSQL:', err.message);
+    const detail =
+      err?.message ||
+      err?.code ||
+      (Array.isArray(err?.errors)
+        ? err.errors.map((e) => e.code || e.message).filter(Boolean).join(', ')
+        : '') ||
+      String(err);
+    console.error('Falha ao conectar/inicializar o PostgreSQL:', detail);
     console.error('Verifique se o PostgreSQL está rodando e se o arquivo .env está configurado (veja .env.example).');
     process.exit(1);
   }

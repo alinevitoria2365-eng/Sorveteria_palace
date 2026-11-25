@@ -8,6 +8,7 @@ import type {
   Pedido,
   Produto,
   User,
+  UsuarioItem,
 } from './types';
 
 const STORE_KEY = 'sorveteria_pdv_static_store_v9';
@@ -457,5 +458,33 @@ export const localStore = {
         ...info,
       })),
     };
+  },
+
+  register(nome: string, usuario: string, _senha: string): { token: string; user: User } {
+    const cleanUser = usuario.trim().toLowerCase();
+    const cleanNome = nome.trim();
+    if (!cleanNome || cleanUser.length < 3) {
+      throw new Error('Preencha nome e usuário válido.');
+    }
+    const user: User = { id: Date.now(), nome: cleanNome, usuario: cleanUser };
+    return { token: `static.${btoa(JSON.stringify(user))}`, user };
+  },
+
+  getUsuarios(): UsuarioItem[] {
+    return DEFAULT_USERS.map((u) => ({ id: u.id, nome: u.nome, usuario: u.usuario, ativo: 1 }));
+  },
+
+  createUsuario(data: { nome: string; usuario: string; senha: string }): UsuarioItem {
+    return {
+      id: Date.now(),
+      nome: data.nome.trim(),
+      usuario: data.usuario.trim().toLowerCase(),
+      ativo: 1,
+    };
+  },
+
+  updateUsuario(id: number, data: { ativo: boolean }): UsuarioItem {
+    const found = DEFAULT_USERS.find((u) => u.id === id) || DEFAULT_USERS[0];
+    return { id, nome: found.nome, usuario: found.usuario, ativo: data.ativo ? 1 : 0 };
   },
 };
